@@ -15,7 +15,7 @@
     "rules": {
         "comma-spacing": "warn",
         "eol-last": "warn",
-        "indent": ["warn", 2],
+        "indent": ["warn", 4],
         "no-trailing-spaces": "warn",
         "space-before-function-paren": "warn",
         "space-before-blocks": "warn",
