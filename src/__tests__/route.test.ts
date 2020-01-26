@@ -7,7 +7,7 @@ describe("Class Route", () => {
         let route: Route;
 
         beforeEach(() => {
-            route = new Route("GET", "/items");
+            route = new Route("GET", "/items", jest.fn());
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
@@ -29,7 +29,7 @@ describe("Class Route", () => {
         let route: Route;
 
         beforeEach(() => {
-            route = new Route("GET", "/items/{itemSlug}");
+            route = new Route("GET", "/items/{itemSlug}", jest.fn());
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
@@ -51,7 +51,7 @@ describe("Class Route", () => {
         let route: Route;
 
         beforeEach(() => {
-            route = new Route("GET", "/items/{itemSlug}/images/{imageNumber}");
+            route = new Route("GET", "/items/{itemSlug}/images/{imageNumber}", jest.fn());
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
@@ -73,7 +73,7 @@ describe("Class Route", () => {
         let route: Route;
 
         beforeEach(() => {
-            route = new Route("GET", "/items/{itemSlug}/images/{imageNumber}/metadata");
+            route = new Route("GET", "/items/{itemSlug}/images/{imageNumber}/metadata", jest.fn());
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {

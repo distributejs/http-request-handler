@@ -13,16 +13,20 @@ interface PathRegExpAndParameters {
 }
 
 export class Route {
-    public method: keyof typeof RouteMethods;
+    public readonly method: keyof typeof RouteMethods;
 
-    public pathTemplate: string;
+    public readonly pathTemplate: string;
+
+    public readonly targetFn: Function;
 
     protected memoizedPathRegExpsAndParameters: PathRegExpAndParameters;
 
-    constructor(method: keyof typeof RouteMethods, pathTemplate: string) {
+    constructor(method: keyof typeof RouteMethods, pathTemplate: string, targetFn: Function) {
         this.method = method;
 
         this.pathTemplate = pathTemplate;
+
+        this.targetFn = targetFn;
     }
 
     get pathRegExpAndParameters(): PathRegExpAndParameters {
