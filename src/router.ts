@@ -32,6 +32,10 @@ export class Router {
             }
         }
 
+        if (!matchedRoute) {
+            return null;
+        }
+
         return {
             route: matchedRoute,
         };

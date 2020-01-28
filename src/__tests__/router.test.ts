@@ -88,5 +88,23 @@ describe("Class Router", () => {
         });
     })
 
-    // TODO: Write tests for no matches for method and / or URI.
+    describe("On calling match() with a URI which does not match any routes", () => {
+        test("Returns null", () => {
+            const router = new Router(routes);
+
+            expect(router.match("GET", "/brands")).toBeNull();
+
+            expect(router.match("GET", "/posts")).toBeNull();
+        });
+    });
+
+    describe("On calling match() with a method and a URI, where the method does not match any routes with that URI", () => {
+        test("Returns null", () => {
+            const router = new Router(routes);
+
+            expect(router.match("POST", "/items/{itemSlug}")).toBeNull();
+
+            expect(router.match("DELETE", "/orders/{orderRef}")).toBeNull();
+        });
+    })
 });
