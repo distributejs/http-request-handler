@@ -70,7 +70,22 @@ describe("Class Router", () => {
     });
 
     describe("On calling match() with method and URI matching more than route", () => {
-        test.todo("Returns a RouteMatch for the most recently defined of the matching routes");
+        test("Returns a RouteMatch for the most recently defined of the matching routes", () => {
+            const overridingRoutes: Route[] = [
+                new Route("GET", "/items/{itemSlug}", jest.fn()),
+                new Route("POST", "/items/{itemSlug}/images", jest.fn()),
+            ];
+
+            const router = new Router([].concat(routes, overridingRoutes));
+
+            expect(router.match("GET", "/items/apples-pack-of-4")).toHaveProperty("route.targetFn", overridingRoutes[0].targetFn);
+
+            expect(router.match("GET", "/items/apples-pack-of-4")).not.toHaveProperty("route.targetFn", routes[3].targetFn);
+
+            expect(router.match("POST", "/items/apples-pack-of-4/images")).toHaveProperty("route.targetFn", overridingRoutes[1].targetFn);
+
+            expect(router.match("POST", "/items/apples-pack-of-4/images")).not.toHaveProperty("route.targetFn", routes[7].targetFn);
+        });
     })
 
     // TODO: Write tests for no matches for method and / or URI.
