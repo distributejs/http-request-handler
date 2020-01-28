@@ -5,12 +5,12 @@ export interface RouterMatch {
 }
 
 export class Router {
-    protected readonly reverseOrderRoutes: Route[];
+    protected readonly routes: Route[];
 
     protected memoizedRoutesToRouteMethodsMap: Map<RouteMethods, Route[]>;
 
     constructor(routes: Route[]) {
-        this.reverseOrderRoutes = routes.slice().reverse();
+        this.routes = routes;
 
         this.memoizedRoutesToRouteMethodsMap = new Map();
     }
@@ -20,13 +20,13 @@ export class Router {
 
         const routeMethod = RouteMethods[method];
 
-        const reverseOrderRoutesForRouteMethod = this.listReverseOrderRoutesForRouteMethod(routeMethod);
+        const routesForRouteMethod = this.listRoutesForRouteMethod(routeMethod);
 
-        for (const route of reverseOrderRoutesForRouteMethod) {
-            const regExpResult = route.pathRegExpAndParameters.pathRegExp.exec(uri);
+        for (let i = routesForRouteMethod.length - 1; i >= 0; --i) {
+            const regExpResult = routesForRouteMethod[i].pathRegExpAndParameters.pathRegExp.exec(uri);
 
             if (regExpResult && regExpResult.length) {
-                matchedRoute = route;
+                matchedRoute = routesForRouteMethod[i];
 
                 break;
             }
@@ -37,12 +37,12 @@ export class Router {
         };
     }
 
-    protected listReverseOrderRoutesForRouteMethod(routeMethod: RouteMethods): Route[] {
+    protected listRoutesForRouteMethod(routeMethod: RouteMethods): Route[] {
         if (this.memoizedRoutesToRouteMethodsMap.has(routeMethod)) {
             return this.memoizedRoutesToRouteMethodsMap.get(routeMethod);
         }
 
-        const routesForRouteMethod = this.reverseOrderRoutes.filter((route) => {
+        const routesForRouteMethod = this.routes.filter((route) => {
             return route.method == routeMethod;
         });
 
