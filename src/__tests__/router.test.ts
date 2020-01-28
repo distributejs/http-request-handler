@@ -26,51 +26,116 @@ describe("Class Router", () => {
     ];
 
     describe("On calling match() with method and URI matching a route with no expressions in pathTemplate", () => {
-        test("Returns a RouteMatch with correct route.targetFn value", () => {
-            const router = new Router(routes);
+        let router: Router;
 
-            expect(router.match("GET", "/items")).toHaveProperty("route.targetFn", routes[0].targetFn);
+        beforeAll(() => {
+            router = new Router(routes);
+        });
 
-            expect(router.match("POST", "/items")).toHaveProperty("route.targetFn", routes[1].targetFn);
+        test("Returns a RouteMatch with correct route value", () => {
+            expect(router.match("GET", "/items")).toHaveProperty("route", routes[0]);
 
-            expect(router.match("GET", "/orders")).toHaveProperty("route.targetFn", routes[12].targetFn);
+            expect(router.match("POST", "/items")).toHaveProperty("route", routes[1]);
 
-            expect(router.match("POST", "/orders")).toHaveProperty("route.targetFn", routes[13].targetFn);
+            expect(router.match("GET", "/orders")).toHaveProperty("route", routes[12]);
+
+            expect(router.match("POST", "/orders")).toHaveProperty("route", routes[13]);
+        });
+
+        test("Returns a RouteMatch with correct args value", () => {
+            expect(router.match("GET", "/items")).toHaveProperty("args", new Map());
+
+            expect(router.match("POST", "/items")).toHaveProperty("args", new Map());
+
+            expect(router.match("GET", "/orders")).toHaveProperty("args", new Map());
+
+            expect(router.match("POST", "/orders")).toHaveProperty("args", new Map());
         });
     });
 
     describe("On calling match() with method and URI matching a route with a single expression in pathTemplate", () => {
+        let router: Router;
+
+        beforeAll(() => {
+            router = new Router(routes);
+        });
+
         test("Returns a RouteMatch with correct route value", () => {
-            const router = new Router(routes);
+            expect(router.match("DELETE", "/items/orange")).toHaveProperty("route", routes[2]);
 
-            expect(router.match("DELETE", "/items/orange")).toHaveProperty("route.targetFn", routes[2].targetFn);
+            expect(router.match("PUT", "/items/apples-pack-of-4")).toHaveProperty("route", routes[5]);
 
-            expect(router.match("PUT", "/items/apples-pack-of-4")).toHaveProperty("route.targetFn", routes[5].targetFn);
+            expect(router.match("GET", "/items/apples-pack-of-4/images")).toHaveProperty("route", routes[6]);
 
-            expect(router.match("GET", "/items/apples-pack-of-4/images")).toHaveProperty("route.targetFn", routes[6].targetFn);
+            expect(router.match("GET", "/orders/AC8752")).toHaveProperty("route", routes[14]);
 
-            expect(router.match("GET", "/orders/AC8752")).toHaveProperty("route.targetFn", routes[14].targetFn);
+            expect(router.match("PATCH", "/orders/AC8752")).toHaveProperty("route", routes[15]);
 
-            expect(router.match("PATCH", "/orders/AC8752")).toHaveProperty("route.targetFn", routes[15].targetFn);
+            expect(router.match("POST", "/orders/AC8752/items")).toHaveProperty("route", routes[17]);
+        });
 
-            expect(router.match("POST", "/orders/AC8752/items")).toHaveProperty("route.targetFn", routes[17].targetFn);
+        test("Returns a RouteMatch with correct args value", () => {
+            expect(router.match("DELETE", "/items/orange")).toHaveProperty("args", new Map([
+                ["itemSlug", "orange"],
+            ]));
+
+            expect(router.match("PUT", "/items/apples-pack-of-4")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+            ]));
+
+            expect(router.match("GET", "/items/apples-pack-of-4/images")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+            ]));
+
+            expect(router.match("GET", "/orders/AC8752")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
+
+            expect(router.match("PATCH", "/orders/AC8752")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
+
+            expect(router.match("POST", "/orders/AC8752/items")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
         });
     });
 
     describe("On calling match() with method and URI matching a route with multiple expressions in pathTemplate", () => {
+        let router: Router;
+
+        beforeAll(() => {
+            router = new Router(routes);
+        });
+
         test("Returns a RouteMatch with correct route value", () => {
-            const router = new Router(routes);
+            expect(router.match("GET", "/items/apples-pack-of-4/images/2")).toHaveProperty("route", routes[9]);
 
-            expect(router.match("GET", "/items/apples-pack-of-4/images/2")).toHaveProperty("route.targetFn", routes[9].targetFn);
+            expect(router.match("PUT", "/items/pear/images/2")).toHaveProperty("route", routes[11]);
 
-            expect(router.match("PUT", "/items/pear/images/2")).toHaveProperty("route.targetFn", routes[11].targetFn);
+            expect(router.match("GET", "/orders/AC8752/items/3")).toHaveProperty("route", routes[18]);
+        });
 
-            expect(router.match("GET", "/orders/AC8752/items/3")).toHaveProperty("route.targetFn", routes[18].targetFn);
+        test("Returns a RouteMatch with correct args value", () => {
+            expect(router.match("GET", "/items/apples-pack-of-4/images/2")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+                ["imageNumber", "2"],
+            ]));
+
+            expect(router.match("PUT", "/items/pear/images/3")).toHaveProperty("args", new Map([
+                ["itemSlug", "pear"],
+                ["imageNumber", "3"],
+            ]));
+
+            expect(router.match("GET", "/orders/AC8752/items/3")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+                ["itemNumber", "3"],
+            ]));
         });
     });
 
     describe("On calling match() with method and URI matching more than route", () => {
-        test("Returns a RouteMatch for the most recently defined of the matching routes", () => {
+        test("Returns a RouteMatch with route value for the most recently defined of the matching routes", () => {
             const overridingRoutes: Route[] = [
                 new Route("GET", "/items/{itemSlug}", jest.fn()),
                 new Route("POST", "/items/{itemSlug}/images", jest.fn()),
@@ -78,13 +143,13 @@ describe("Class Router", () => {
 
             const router = new Router([].concat(routes, overridingRoutes));
 
-            expect(router.match("GET", "/items/apples-pack-of-4")).toHaveProperty("route.targetFn", overridingRoutes[0].targetFn);
+            expect(router.match("GET", "/items/apples-pack-of-4")).toHaveProperty("route", overridingRoutes[0]);
 
-            expect(router.match("GET", "/items/apples-pack-of-4")).not.toHaveProperty("route.targetFn", routes[3].targetFn);
+            expect(router.match("GET", "/items/apples-pack-of-4")).not.toHaveProperty("route", routes[3]);
 
-            expect(router.match("POST", "/items/apples-pack-of-4/images")).toHaveProperty("route.targetFn", overridingRoutes[1].targetFn);
+            expect(router.match("POST", "/items/apples-pack-of-4/images")).toHaveProperty("route", overridingRoutes[1]);
 
-            expect(router.match("POST", "/items/apples-pack-of-4/images")).not.toHaveProperty("route.targetFn", routes[7].targetFn);
+            expect(router.match("POST", "/items/apples-pack-of-4/images")).not.toHaveProperty("route", routes[7]);
         });
     })
 
@@ -106,5 +171,5 @@ describe("Class Router", () => {
 
             expect(router.match("DELETE", "/orders/{orderRef}")).toBeNull();
         });
-    })
+    });
 });

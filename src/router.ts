@@ -1,6 +1,8 @@
 import { Route, RouteMethods } from "./route";
 
 export interface RouterMatch {
+    args: Map<string, string>;
+
     route: Route;
 }
 
@@ -16,6 +18,8 @@ export class Router {
     }
 
     public match(method: string, uri: string): RouterMatch {
+        const args: Map<string, string> = new Map();
+
         let matchedRoute: Route;
 
         const routeMethod = RouteMethods[method];
@@ -28,6 +32,12 @@ export class Router {
             if (regExpResult && regExpResult.length) {
                 matchedRoute = routesForRouteMethod[i];
 
+                if (regExpResult.length > 1) {
+                    for (let i = 0; i < matchedRoute.pathRegExpAndParameters.parameters.length; ++i) {
+                        args.set(matchedRoute.pathRegExpAndParameters.parameters[i], regExpResult[i + 1]);
+                    }
+                }
+
                 break;
             }
         }
@@ -37,6 +47,7 @@ export class Router {
         }
 
         return {
+            args,
             route: matchedRoute,
         };
     }
