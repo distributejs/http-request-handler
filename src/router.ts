@@ -17,7 +17,7 @@ export class Router {
         this.memoizedRoutesToRouteMethodsMap = new Map();
     }
 
-    public match(method: string, uri: string): RouterMatch {
+    public match(method: string, path: string): RouterMatch {
         const args: Map<string, string> = new Map();
 
         let matchedRoute: Route;
@@ -27,7 +27,7 @@ export class Router {
         const routesForRouteMethod = this.listRoutesForRouteMethod(routeMethod);
 
         for (let i = routesForRouteMethod.length - 1; i >= 0; --i) {
-            const regExpResult = routesForRouteMethod[i].pathRegExpAndParameters.pathRegExp.exec(uri);
+            const regExpResult = routesForRouteMethod[i].pathRegExpAndParameters.pathRegExp.exec(path);
 
             if (regExpResult && regExpResult.length) {
                 matchedRoute = routesForRouteMethod[i];

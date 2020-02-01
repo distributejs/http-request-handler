@@ -167,9 +167,9 @@ describe("Class Router", () => {
         test("Returns null", () => {
             const router = new Router(routes);
 
-            expect(router.match("POST", "/items/{itemSlug}")).toBeNull();
+            expect(router.match("POST", "/items/orange")).toBeNull();
 
-            expect(router.match("DELETE", "/orders/{orderRef}")).toBeNull();
+            expect(router.match("DELETE", "/orders/AC8752")).toBeNull();
         });
     });
 });
