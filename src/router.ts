@@ -1,5 +1,15 @@
 import { Route, RouteMethods } from "./route";
 
+enum RouterMethods {
+    DELETE,
+    GET,
+    HEAD,
+    OPTIONS,
+    PATCH,
+    POST,
+    PUT,
+}
+
 export interface RouterMatch {
     args: Map<string, string>;
 
@@ -15,6 +25,34 @@ export class Router {
         this.routes = routes;
 
         this.memoizedRoutesToRouteMethodsMap = new Map();
+    }
+
+    public listMethodsForPath(path: string): (keyof typeof RouterMethods)[] {
+        const methods: (keyof typeof RouterMethods)[] = [];
+
+        let matchedRoute: Route;
+
+        for (const route of this.routes) {
+            if (route.pathRegExpAndParameters.pathRegExp.test(path)) {
+                methods.push(RouteMethods[route.method] as keyof typeof RouteMethods);
+
+                if (route.method == RouteMethods.GET) {
+                    methods.push("HEAD");
+                }
+
+                matchedRoute = route;
+            }
+        }
+
+        if (!matchedRoute) {
+            return null;
+        }
+
+        methods.push("OPTIONS");
+
+        methods.sort();
+
+        return methods;
     }
 
     public match(method: string, path: string): RouterMatch {

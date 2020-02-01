@@ -172,4 +172,44 @@ describe("Class Router", () => {
             expect(router.match("DELETE", "/orders/AC8752")).toBeNull();
         });
     });
+
+    describe("On calling listMethodsForPath() with a URI matching at least one route", () => {
+        let router: Router;
+
+        beforeAll(() => {
+            router = new Router(routes);
+        });
+
+        test("Returns an alphabetically sorted list of methods of routes matching the request URI", () => {
+            expect(router.listMethodsForPath("/items")).toEqual(["GET", "HEAD", "OPTIONS", "POST"]);
+
+            expect(router.listMethodsForPath("/orders")).toEqual(["GET", "HEAD", "OPTIONS", "POST"]);
+
+            expect(router.listMethodsForPath("/items/orange")).toEqual(["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "PUT"]);
+
+            expect(router.listMethodsForPath("/items/apples-pack-of-4")).toEqual(["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "PUT"]);
+
+            expect(router.listMethodsForPath("/items/apples-pack-of-4/images")).toEqual(["GET", "HEAD", "OPTIONS", "POST"]);
+
+            expect(router.listMethodsForPath("/orders/AC8752")).toEqual(["GET", "HEAD", "OPTIONS", "PATCH"]);
+
+            expect(router.listMethodsForPath("/orders/AC8752/items")).toEqual(["GET", "HEAD", "OPTIONS", "POST"]);
+
+            expect(router.listMethodsForPath("/items/apples-pack-of-4/images/2")).toEqual(["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "PUT"]);
+
+            expect(router.listMethodsForPath("/items/pear/images/2")).toEqual(["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "PUT"]);
+
+            expect(router.listMethodsForPath("/orders/AC8752/items/3")).toEqual(["GET", "HEAD", "OPTIONS"]);
+        });
+    });
+
+    describe("On calling listMethodsForPath() with a URI not matching any routes", () => {
+        test("Returns null", () => {
+            const router = new Router(routes);
+
+            expect(router.listMethodsForPath("/brands")).toBeNull();
+
+            expect(router.listMethodsForPath("/posts")).toBeNull();
+        });
+    });
 });
