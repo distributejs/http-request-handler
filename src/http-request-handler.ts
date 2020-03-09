@@ -42,7 +42,17 @@ export class HttpRequestHandler {
 
         const matchedRoute = this.router.match(request.method, requestUrl.pathname);
 
-        // TODO: Handle no route match, attempt to find allowed methods.
+        if (!matchedRoute) {
+            const allowedMethods = this.router.listMethodsForPath(requestUrl.pathname);
+
+            response.writeHead(405, {
+                "allow": allowedMethods.join(", "),
+            });
+
+            response.end();
+
+            return;
+        }
 
         matchedRoute.route.targetFn();
 

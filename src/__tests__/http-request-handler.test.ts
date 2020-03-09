@@ -84,5 +84,47 @@ describe("Class HttpRequestHandler", () => {
                 expect(operations[0].fulfil).toHaveBeenCalledTimes(2);
             });
         });
+
+        describe("On request with a method and a URI, where the method does not match any routes with that URI", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            let operations: Operation[];
+
+            beforeEach(() => {
+                operations = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        fulfil: jest.fn(),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        fulfil: jest.fn(),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+
+                    if (!response.finished) {
+                        response.end();
+                    }
+                });
+            });
+
+            test("Sends a response with status code 405 Method Not Allowed and an Allow header containing allowed methods for the resource", async() => {
+                const response = await httpCheck.send({
+                    ":method": "PUT",
+                    ":path": "/items",
+                });
+
+                expect(response.headers[":status"]).toEqual(405);
+
+                expect(response.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
+            });
+        })
     });
 });
