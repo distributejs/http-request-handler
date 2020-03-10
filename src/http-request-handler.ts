@@ -45,6 +45,14 @@ export class HttpRequestHandler {
         if (!matchedRoute) {
             const allowedMethods = this.router.listMethodsForPath(requestUrl.pathname);
 
+            if (!allowedMethods) {
+                response.writeHead(404);
+
+                response.end();
+
+                return;
+            }
+
             response.writeHead(405, {
                 "allow": allowedMethods.join(", "),
             });

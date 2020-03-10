@@ -115,6 +115,10 @@ describe("Class HttpRequestHandler", () => {
                 });
             });
 
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
             test("Sends a response with status code 405 Method Not Allowed and an Allow header containing allowed methods for the resource", async() => {
                 const response = await httpCheck.send({
                     ":method": "PUT",
@@ -125,6 +129,50 @@ describe("Class HttpRequestHandler", () => {
 
                 expect(response.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
             });
-        })
+        });
+
+        describe("On request with a method and a URI, where the URI does not match any routes", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            let operations: Operation[];
+
+            beforeEach(() => {
+                operations = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        fulfil: jest.fn(),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        fulfil: jest.fn(),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+
+                    if (!response.finished) {
+                        response.end();
+                    }
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found", async() => {
+                const response = await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/favorites/",
+                });
+
+                expect(response.headers[":status"]).toEqual(404);
+            });
+        });
     });
 });
