@@ -17,11 +17,11 @@ export class Route {
 
     public readonly pathTemplate: string;
 
-    public readonly targetFn: Function;
+    public readonly targetFn: (request, response) => Promise<void>;
 
     protected memoizedPathRegExpsAndParameters: PathRegExpAndParameters;
 
-    constructor(method: keyof typeof RouteMethods, pathTemplate: string, targetFn: Function) {
+    constructor(method: keyof typeof RouteMethods, pathTemplate: string, targetFn: (request, response) => Promise<void>) {
         this.method = RouteMethods[method];
 
         this.pathTemplate = pathTemplate;

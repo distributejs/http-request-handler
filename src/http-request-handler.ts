@@ -9,7 +9,7 @@ import { Route, RouteMethods } from "./route";
 import { Router } from "./router";
 
 export interface Operation {
-    fulfil: () => void;
+    fulfil: (request, response) => Promise<void>;
     method: keyof typeof RouteMethods;
     path: string;
 }
@@ -33,7 +33,7 @@ export class HttpRequestHandler {
         }));
     }
 
-    public handleRequest(request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): void {
+    public async handleRequest(request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): Promise<void> {
         const urlBase = request.headers[":scheme"] + '://' + request.headers[":authority"];
 
         const requestUrl = new URL(request.url, urlBase);
@@ -62,7 +62,11 @@ export class HttpRequestHandler {
             return;
         }
 
-        matchedRoute.route.targetFn();
+        await matchedRoute.route.targetFn(request, response)
+            .catch(() => {
+                response.statusCode = 500;
 
+                response.end();
+            });
     }
 }

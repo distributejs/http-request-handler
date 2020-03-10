@@ -33,12 +33,16 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "GET",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: jest.fn(async(request, response): Promise<void> => {
+                            response.end();
+                        }),
                     },
                     {
                         method: "POST",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: jest.fn(async(request, response): Promise<void> => {
+                            response.end();
+                        }),
                     },
                 ];
 
@@ -46,10 +50,6 @@ describe("Class HttpRequestHandler", () => {
 
                 server.on("request", (request, response) => {
                     httpRequestHandler.handleRequest(request, response);
-
-                    if (!response.finished) {
-                        response.end();
-                    }
                 });
             });
 
@@ -88,19 +88,21 @@ describe("Class HttpRequestHandler", () => {
         describe("On request with a method and a URI, where the method does not match any routes with that URI", () => {
             let httpRequestHandler: HttpRequestHandler;
 
-            let operations: Operation[];
-
             beforeEach(() => {
-                operations = [
+                const operations: Operation[] = [
                     {
                         method: "GET",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: async(request, response): Promise<void> => {
+                            response.end();
+                        },
                     },
                     {
                         method: "POST",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: async(request, response): Promise<void> => {
+                            response.end();
+                        },
                     },
                 ];
 
@@ -108,10 +110,6 @@ describe("Class HttpRequestHandler", () => {
 
                 server.on("request", (request, response) => {
                     httpRequestHandler.handleRequest(request, response);
-
-                    if (!response.finished) {
-                        response.end();
-                    }
                 });
             });
 
@@ -134,19 +132,21 @@ describe("Class HttpRequestHandler", () => {
         describe("On request with a method and a URI, where the URI does not match any routes", () => {
             let httpRequestHandler: HttpRequestHandler;
 
-            let operations: Operation[];
-
             beforeEach(() => {
-                operations = [
+                const operations: Operation[] = [
                     {
                         method: "GET",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: async(request, response): Promise<void> => {
+                            response.end();
+                        },
                     },
                     {
                         method: "POST",
                         path: "/items",
-                        fulfil: jest.fn(),
+                        fulfil: async(request, response): Promise<void> => {
+                            response.end();
+                        },
                     },
                 ];
 
@@ -154,10 +154,6 @@ describe("Class HttpRequestHandler", () => {
 
                 server.on("request", (request, response) => {
                     httpRequestHandler.handleRequest(request, response);
-
-                    if (!response.finished) {
-                        response.end();
-                    }
                 });
             });
 
@@ -172,6 +168,41 @@ describe("Class HttpRequestHandler", () => {
                 });
 
                 expect(response.headers[":status"]).toEqual(404);
+            });
+        });
+
+        describe("On request matching a route which has an uncaught error in its fulfil function", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        fulfil: async(request, response): Promise<void> => {
+                            throw new Error("Test error");
+                        },
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 500 Internal Server Error", async() => {
+                const response = await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                expect(response.headers[":status"]).toEqual(500);
             });
         });
     });
