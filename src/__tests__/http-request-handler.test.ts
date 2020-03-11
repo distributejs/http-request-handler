@@ -186,7 +186,7 @@ describe("Class HttpRequestHandler", () => {
                         method: "GET",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: async(request, response): Promise<void> => {
+                        fulfil: async(): Promise<void> => {
                             throw new Error("Test error");
                         },
                     },
