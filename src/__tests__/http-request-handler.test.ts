@@ -33,6 +33,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "GET",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(request, response): Promise<void> => {
                             response.end();
                         }),
@@ -40,6 +41,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "POST",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(request, response): Promise<void> => {
                             response.end();
                         }),
@@ -93,6 +95,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "GET",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(request, response): Promise<void> => {
                             response.end();
                         },
@@ -100,6 +103,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "POST",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(request, response): Promise<void> => {
                             response.end();
                         },
@@ -137,6 +141,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "GET",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(request, response): Promise<void> => {
                             response.end();
                         },
@@ -144,6 +149,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "POST",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(request, response): Promise<void> => {
                             response.end();
                         },
@@ -179,6 +185,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         method: "GET",
                         path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(request, response): Promise<void> => {
                             throw new Error("Test error");
                         },
