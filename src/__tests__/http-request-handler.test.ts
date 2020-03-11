@@ -3,6 +3,7 @@ import { HttpRequestHandler, Operation } from "../http-request-handler";
 import { createServer as createHttp2Server, Http2Server } from "http2";
 
 import { HttpCheck } from "@distributejs/http-check";
+import { URL } from "url";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Http2Server and a HTTP/2 client", () => {
@@ -28,13 +29,21 @@ describe("Class HttpRequestHandler", () => {
 
             let operations: Operation[];
 
+            let capturedPathArgs: Map<string, string>;
+
+            let capturedUrl: URL;
+
             beforeEach(() => {
                 operations = [
                     {
                         method: "GET",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
                             response.end();
                         }),
                     },
@@ -42,7 +51,11 @@ describe("Class HttpRequestHandler", () => {
                         method: "POST",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
                             response.end();
                         }),
                     },
@@ -85,6 +98,285 @@ describe("Class HttpRequestHandler", () => {
 
                 expect(operations[0].fulfil).toHaveBeenCalledTimes(2);
             });
+
+            test("Passes the request URL to the fulfil function", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                expect(capturedUrl).toBeInstanceOf(URL);
+
+                expect(capturedUrl).toHaveProperty("pathname", "/items");
+            });
+
+            test("Passes an empty map of request URI arguments to the fulfil() function", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                expect(capturedPathArgs).toEqual(new Map());
+            });
+        });
+
+        describe("On request with method and URI matching a route with a single expression in pathTemplate", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            let operations: Operation[];
+
+            let capturedPathArgs: Map<string, string>;
+
+            let capturedUrl: URL;
+
+            beforeEach(() => {
+                operations = [
+                    {
+                        method: "DELETE",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "GET",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "PATCH",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "PUT",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+
+                capturedPathArgs = undefined;
+            });
+
+            test("Calls fulfil() function only for the corresponding operation", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/orange",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalled();
+
+                expect(operations[0].fulfil).not.toHaveBeenCalled();
+
+                expect(operations[2].fulfil).not.toHaveBeenCalled();
+
+                expect(operations[3].fulfil).not.toHaveBeenCalled();
+            });
+
+            test("Calls the same fulfil() function if the request is repeated", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/apples-pack-of-4",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalledTimes(1);
+
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/apples-pack-of-4",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalledTimes(2);
+            });
+
+            test("Passes the request URL to the fulfil function", async() => {
+                await httpCheck.send({
+                    ":method": "PUT",
+                    ":path": "/items/apples-pack-of-4",
+                });
+
+                expect(capturedUrl).toBeInstanceOf(URL);
+
+                expect(capturedUrl).toHaveProperty("pathname", "/items/apples-pack-of-4");
+            });
+
+            test("Passes arguments found in the request URI to the fulfil() function", async() => {
+                await httpCheck.send({
+                    ":method": "PUT",
+                    ":path": "/items/apples-pack-of-4",
+                });
+
+                expect(capturedPathArgs).toEqual(new Map([
+                    ["itemSlug", "apples-pack-of-4"],
+                ]));
+            });
+        });
+
+        describe("On request with method and URI matching a route with multiple expressions in pathTemplate", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            let operations: Operation[];
+
+            let capturedPathArgs: Map<string, string>;
+
+            let capturedUrl: URL;
+
+            beforeEach(() => {
+                operations = [
+                    {
+                        method: "DELETE",
+                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "GET",
+                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "PATCH",
+                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "PUT",
+                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            capturedPathArgs = context.pathArgs;
+
+                            capturedUrl = context.url;
+
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+
+                capturedPathArgs = undefined;
+
+                capturedUrl = undefined;
+            });
+
+            test("Calls fulfil() function only for the corresponding operation", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/pear/images/2",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalled();
+
+                expect(operations[0].fulfil).not.toHaveBeenCalled();
+
+                expect(operations[2].fulfil).not.toHaveBeenCalled();
+
+                expect(operations[3].fulfil).not.toHaveBeenCalled();
+            });
+
+            test("Calls the same fulfil() function if the request is repeated", async() => {
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/apples-pack-of-4/images/2",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalledTimes(1);
+
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items/apples-pack-of-4/images/2",
+                });
+
+                expect(operations[1].fulfil).toHaveBeenCalledTimes(2);
+            });
+
+            test("Passes the request URL to the fulfil function", async() => {
+                await httpCheck.send({
+                    ":method": "PUT",
+                    ":path": "/items/apples-pack-of-4/images/2",
+                });
+
+                expect(capturedUrl).toBeInstanceOf(URL);
+
+                expect(capturedUrl).toHaveProperty("pathname", "/items/apples-pack-of-4/images/2");
+            });
+
+            test("Passes arguments found in the request URI to the fulfil() function", async() => {
+                await httpCheck.send({
+                    ":method": "PUT",
+                    ":path": "/items/apples-pack-of-4/images/2",
+                });
+
+                expect(capturedPathArgs).toEqual(new Map([
+                    ["itemSlug", "apples-pack-of-4"],
+                    ["imageNumber", "2"],
+                ]));
+            });
         });
 
         describe("On request with a method and a URI, where the method does not match any routes with that URI", () => {
@@ -96,17 +388,17 @@ describe("Class HttpRequestHandler", () => {
                         method: "GET",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             response.end();
-                        },
+                        }),
                     },
                     {
                         method: "POST",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             response.end();
-                        },
+                        }),
                     },
                 ];
 
@@ -142,17 +434,17 @@ describe("Class HttpRequestHandler", () => {
                         method: "GET",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             response.end();
-                        },
+                        }),
                     },
                     {
                         method: "POST",
                         path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: async(request, response): Promise<void> => {
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             response.end();
-                        },
+                        }),
                     },
                 ];
 

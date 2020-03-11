@@ -9,9 +9,21 @@ import { Route, RouteMethods } from "./route";
 import { Router } from "./router";
 
 export interface Operation {
-    fulfil: (request, response) => Promise<void>;
+    fulfil: Fulfil;
+
     method: keyof typeof RouteMethods;
+
     path: string;
+}
+
+interface Fulfil {
+    (context: OperationContext, request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): Promise<void>;
+}
+
+interface OperationContext {
+    pathArgs: Map<string, string>;
+
+    url: URL;
 }
 
 export class HttpRequestHandler {
@@ -62,7 +74,14 @@ export class HttpRequestHandler {
             return;
         }
 
-        await matchedRoute.route.targetFn(request, response)
+        const operationTargetFn = matchedRoute.route.targetFn as Fulfil;
+
+        const context: OperationContext = {
+            pathArgs: matchedRoute.args,
+            url: requestUrl,
+        };
+
+        await operationTargetFn(context, request, response)
             .catch(() => {
                 response.statusCode = 500;
 
