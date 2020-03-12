@@ -379,6 +379,98 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
+        describe("On request with OPTIONS method, a URI matching at least one route, and no Access-Control headers", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 200 OK and an Allow header containing allowed methods for the resource", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                });
+
+                expect(response.headers[":status"]).toEqual(200);
+
+                expect(response.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
+            });
+        });
+
+        describe("On request with OPTIONS method, a URI matching no routes, and no Access-Control headers", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found and no allow header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/orders",
+                });
+
+                expect(response.headers[":status"]).toEqual(404);
+
+                expect(response.headers).not.toHaveProperty("allow");
+            });
+        });
+
         describe("On request with a method and a URI, where the method does not match any routes with that URI", () => {
             let httpRequestHandler: HttpRequestHandler;
 

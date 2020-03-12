@@ -50,7 +50,25 @@ export class HttpRequestHandler {
 
         const requestUrl = new URL(request.url, urlBase);
 
-        // TODO: Handle method set to OPTIONS.
+        if (request.method == "OPTIONS") {
+            const allowedMethods = this.router.listMethodsForPath(requestUrl.pathname);
+
+            if (!allowedMethods) {
+                response.writeHead(404);
+
+                response.end();
+
+                return;
+            }
+
+            response.writeHead(200, {
+                "allow": allowedMethods.join(", "),
+            });
+
+            response.end();
+
+            return;
+        }
 
         const matchedRoute = this.router.match(request.method, requestUrl.pathname);
 
