@@ -61,7 +61,7 @@ export class HttpRequestHandler {
                 return;
             }
 
-            response.writeHead(200, {
+            response.writeHead(204, {
                 "allow": allowedMethods.join(", "),
             });
 

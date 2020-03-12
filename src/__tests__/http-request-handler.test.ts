@@ -413,13 +413,13 @@ describe("Class HttpRequestHandler", () => {
                 server.removeAllListeners("request");
             });
 
-            test("Sends a response with status code 200 OK and an Allow header containing allowed methods for the resource", async() => {
+            test("Sends a response with status code 204 OK and an Allow header containing allowed methods for the resource", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
                 });
 
-                expect(response.headers[":status"]).toEqual(200);
+                expect(response.headers[":status"]).toEqual(204);
 
                 expect(response.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
             });
