@@ -11,7 +11,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(/^\/items$/);
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(/^\/items\/??$/);
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
@@ -33,7 +33,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "\\/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
@@ -55,7 +55,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "\\/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
@@ -77,7 +77,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "/metadata$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "/metadata\\/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {

@@ -51,6 +51,26 @@ describe("Class Router", () => {
 
             expect(router.match("POST", "/orders")).toHaveProperty("args", new Map());
         });
+
+        test("Returns a RouteMatch with correct route value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/items/")).toHaveProperty("route", routes[0]);
+
+            expect(router.match("POST", "/items/")).toHaveProperty("route", routes[1]);
+
+            expect(router.match("GET", "/orders/")).toHaveProperty("route", routes[12]);
+
+            expect(router.match("POST", "/orders/")).toHaveProperty("route", routes[13]);
+        });
+
+        test("Returns a RouteMatch with correct args value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/items/")).toHaveProperty("args", new Map());
+
+            expect(router.match("POST", "/items/")).toHaveProperty("args", new Map());
+
+            expect(router.match("GET", "/orders/")).toHaveProperty("args", new Map());
+
+            expect(router.match("POST", "/orders/")).toHaveProperty("args", new Map());
+        });
     });
 
     describe("On calling match() with method and URI matching a route with a single expression in pathTemplate", () => {
@@ -99,6 +119,46 @@ describe("Class Router", () => {
                 ["orderRef", "AC8752"],
             ]));
         });
+
+        test("Returns a RouteMatch with correct route value, regardless of trailing slashes in URI", () => {
+            expect(router.match("DELETE", "/items/orange/")).toHaveProperty("route", routes[2]);
+
+            expect(router.match("PUT", "/items/apples-pack-of-4/")).toHaveProperty("route", routes[5]);
+
+            expect(router.match("GET", "/items/apples-pack-of-4/images/")).toHaveProperty("route", routes[6]);
+
+            expect(router.match("GET", "/orders/AC8752/")).toHaveProperty("route", routes[14]);
+
+            expect(router.match("PATCH", "/orders/AC8752/")).toHaveProperty("route", routes[15]);
+
+            expect(router.match("POST", "/orders/AC8752/items/")).toHaveProperty("route", routes[17]);
+        });
+
+        test("Returns a RouteMatch with correct args value, regardless of trailing slashes in URI", () => {
+            expect(router.match("DELETE", "/items/orange/")).toHaveProperty("args", new Map([
+                ["itemSlug", "orange"],
+            ]));
+
+            expect(router.match("PUT", "/items/apples-pack-of-4/")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+            ]));
+
+            expect(router.match("GET", "/items/apples-pack-of-4/images/")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+            ]));
+
+            expect(router.match("GET", "/orders/AC8752/")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
+
+            expect(router.match("PATCH", "/orders/AC8752/")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
+
+            expect(router.match("POST", "/orders/AC8752/items/")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+            ]));
+        });
     });
 
     describe("On calling match() with method and URI matching a route with multiple expressions in pathTemplate", () => {
@@ -128,6 +188,31 @@ describe("Class Router", () => {
             ]));
 
             expect(router.match("GET", "/orders/AC8752/items/3")).toHaveProperty("args", new Map([
+                ["orderRef", "AC8752"],
+                ["itemNumber", "3"],
+            ]));
+        });
+
+        test("Returns a RouteMatch with correct route value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/items/apples-pack-of-4/images/2/")).toHaveProperty("route", routes[9]);
+
+            expect(router.match("PUT", "/items/pear/images/2/")).toHaveProperty("route", routes[11]);
+
+            expect(router.match("GET", "/orders/AC8752/items/3/")).toHaveProperty("route", routes[18]);
+        });
+
+        test("Returns a RouteMatch with correct args value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/items/apples-pack-of-4/images/2/")).toHaveProperty("args", new Map([
+                ["itemSlug", "apples-pack-of-4"],
+                ["imageNumber", "2"],
+            ]));
+
+            expect(router.match("PUT", "/items/pear/images/3/")).toHaveProperty("args", new Map([
+                ["itemSlug", "pear"],
+                ["imageNumber", "3"],
+            ]));
+
+            expect(router.match("GET", "/orders/AC8752/items/3/")).toHaveProperty("args", new Map([
                 ["orderRef", "AC8752"],
                 ["itemNumber", "3"],
             ]));

@@ -60,7 +60,7 @@ export class Route {
             pathPattern += this.pathTemplate.substr(indexToResumeFrom);
         }
 
-        pathPattern += "$";
+        pathPattern += "\\/??$";
 
         const pathRegExpAndParameters: PathRegExpAndParameters = {
             parameters,
