@@ -425,6 +425,151 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
+        describe("On request with OPTIONS method and a URI and Access-Control-Request-Method matching a route for which CORS is enabled, and no Access-Control-Request-Headers", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "DELETE",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "GET",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            origin: "https://developer.distributejs.org",
+                        },
+                        method: "PATCH",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            origin: "https://developer.distributejs.org",
+                        },
+                        method: "PUT",
+                        path: "/items/{itemSlug}",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 204 OK, Access-Control-Allow-Methods, Access-Control-Allow-Origin headers, but no Access-Control-Allow-Headers or Allow headers", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items/strawberries",
+                    "access-control-request-method": "PATCH",
+                    "origin": "https://developer.distributejs.org",
+                }, JSON.stringify({
+                    "price": 120,
+                }));
+
+                expect(response.headers[":status"]).toEqual(204);
+
+                expect(response.headers).toHaveProperty("access-control-allow-methods", "DELETE, GET, HEAD, OPTIONS, PATCH, PUT");
+
+                expect(response.headers).toHaveProperty("access-control-allow-origin", "https://developer.distributejs.org");
+
+                expect(response.headers).not.toHaveProperty("access-control-allow-headers");
+
+                expect(response.headers).not.toHaveProperty("allow");
+            });
+        });
+
+        describe("On request with OPTIONS method and a URI and Access-Control-Request-Method matching a route for which CORS is enabled and an Access-Control-Request-Headers header", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            headers: ["content-type"],
+                            origin: "https://developer.distributejs.org",
+                        },
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 204 OK, Access-Control-Allow-Headers, Access-Control-Allow-Methods, Access-Control-Allow-Origin headers, but no Allow header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-headers": "Content-type",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developer.distributejs.org",
+                }, JSON.stringify({
+                    "itemSlug": "strawberries",
+                    "name": "Strawberries",
+                    "price": 150,
+                }));
+
+                expect(response.headers[":status"]).toEqual(204);
+
+                expect(response.headers).toHaveProperty("access-control-allow-headers", "Content-Type");
+
+                expect(response.headers).toHaveProperty("access-control-allow-methods", "GET, HEAD, OPTIONS, POST");
+
+                expect(response.headers).toHaveProperty("access-control-allow-origin", "https://developer.distributejs.org");
+
+                expect(response.headers).not.toHaveProperty("allow");
+            });
+        });
+
         describe("On request with OPTIONS method, a URI matching no routes, and no Access-Control headers", () => {
             let httpRequestHandler: HttpRequestHandler;
 
@@ -464,6 +609,62 @@ describe("Class HttpRequestHandler", () => {
                     ":method": "OPTIONS",
                     ":path": "/orders",
                 });
+
+                expect(response.headers[":status"]).toEqual(404);
+
+                expect(response.headers).not.toHaveProperty("allow");
+            });
+        });
+
+        describe("On request with OPTIONS method, a URI matching no routes, and Access-Control headers", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            origin: "https://developer.distributejs.org",
+                        },
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found and no allow header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/orders",
+                    "access-control-request-headers": "Content-Type",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developer.distributejs.org",
+                }, JSON.stringify({
+                    "orderRef": "AC8752",
+                }));
 
                 expect(response.headers[":status"]).toEqual(404);
 

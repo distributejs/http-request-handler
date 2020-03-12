@@ -6,6 +6,16 @@ export enum RouteMethods {
     PUT,
 }
 
+export interface RouteCorsSettings {
+    enabled: boolean;
+
+    headers?: string[];
+
+    maxAge?: number;
+
+    origin: string;
+}
+
 interface PathRegExpAndParameters {
     parameters: string[];
 
@@ -13,6 +23,8 @@ interface PathRegExpAndParameters {
 }
 
 export class Route {
+    public readonly cors: RouteCorsSettings;
+
     public readonly method: RouteMethods;
 
     public readonly pathTemplate: string;
@@ -21,12 +33,14 @@ export class Route {
 
     protected memoizedPathRegExpsAndParameters: PathRegExpAndParameters;
 
-    constructor(method: keyof typeof RouteMethods, pathTemplate: string, targetFn: (...args: unknown[]) => unknown) {
+    constructor(method: keyof typeof RouteMethods, pathTemplate: string, targetFn: (...args: unknown[]) => unknown, cors?: RouteCorsSettings) {
         this.method = RouteMethods[method];
 
         this.pathTemplate = pathTemplate;
 
         this.targetFn = targetFn;
+
+        this.cors = cors;
     }
 
     get pathRegExpAndParameters(): PathRegExpAndParameters {
