@@ -63,7 +63,7 @@ export class HttpRequestHandler {
                 return;
             }
 
-            if (request.headers["access-control-request-method"]) {
+            if (request.headers["origin"] && request.headers["access-control-request-method"]) {
                 const matchedRoute = this.router.match(request.headers["access-control-request-method"] as string, requestUrl.pathname);
 
                 if (!matchedRoute) {
