@@ -470,6 +470,22 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
+        describe("On request with OPTIONS method and a URI which matches at least one route, which does not class as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI which matches at least one route, which classes as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI, where the URI does not match any routes, which would not class as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI, where the URI does not match any routes, which ould class as a preflight request", () => {
+
+        });
+
         describe("On request matching a route which has an uncaught error in its fulfil function", () => {
             let httpRequestHandler: HttpRequestHandler;
 
