@@ -63,28 +63,6 @@ export class HttpRequestHandler {
                 return;
             }
 
-            if (request.headers["origin"] && request.headers["access-control-request-method"]) {
-                const matchedRoute = this.router.match(request.headers["access-control-request-method"] as string, requestUrl.pathname);
-
-                if (!matchedRoute) {
-                    // TODO: Handle no match for route.
-                }
-
-                const responseHeaders = {
-                    "access-control-allow-origin": matchedRoute.route.cors.origin,
-                    "access-control-allow-methods": allowedMethods.join(", "),
-                };
-
-                if (request.headers["access-control-request-headers"]) {
-                    // TODO: Handle difference between access-control-request-headers and matchedRoute.route.cors.headers.
-                    responseHeaders["access-control-allow-headers"] = matchedRoute.route.cors.headers ? matchedRoute.route.cors.headers.map((name: string) => name.split("-").map((nameChunk: string) => nameChunk.substr(0, 1).toUpperCase() + nameChunk.substr(1).toLowerCase()).join("-")).join(", ") : "";
-                }
-
-                response.writeHead(204, responseHeaders);
-
-                return;
-            }
-
             response.writeHead(204, {
                 "allow": allowedMethods.join(", "),
             });
