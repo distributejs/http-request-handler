@@ -2,8 +2,9 @@ import { HttpRequestHandler, Operation } from "../http-request-handler";
 
 import { createServer as createHttp2Server, Http2Server } from "http2";
 
-import { HttpCheck } from "@distributejs/http-check";
 import { URL } from "url";
+
+import { HttpCheck } from "@distributejs/http-check";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Http2Server and a HTTP/2 client", () => {
