@@ -379,7 +379,7 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with OPTIONS method, a URI matching at least one route, and either one or both of Origin and Access-Control-Request-Method headers are not present", () => {
+        describe("On request with OPTIONS method, a URI matching at least one route, and no Origin header", () => {
             let httpRequestHandler: HttpRequestHandler;
 
             beforeEach(() => {
@@ -414,35 +414,14 @@ describe("Class HttpRequestHandler", () => {
             });
 
             test("Sends a response with status code 204 OK and an Allow header containing allowed methods for the resource", async() => {
-                const response1 = await httpCheck.send({
+                const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
                 });
 
-                expect(response1.headers[":status"]).toEqual(204);
+                expect(response.headers[":status"]).toEqual(204);
 
-                expect(response1.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
-
-                const response2 = await httpCheck.send({
-                    ":method": "OPTIONS",
-                    ":path": "/items",
-                    "origin": "https://developers.distributejs.org",
-                });
-
-                expect(response2.headers[":status"]).toEqual(204);
-
-                expect(response2.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
-
-                const response3 = await httpCheck.send({
-                    ":method": "OPTIONS",
-                    ":path": "/items",
-                    "access-control-request-method": "POST",
-                    "content-type": "application/json",
-                });
-
-                expect(response3.headers[":status"]).toEqual(204);
-
-                expect(response3.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
+                expect(response.headers).toHaveProperty("allow", "GET, HEAD, OPTIONS, POST");
             });
         });
 
