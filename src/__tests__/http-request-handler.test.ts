@@ -470,19 +470,27 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with OPTIONS method and a URI which matches at least one route, which does not class as a preflight request", () => {
+        describe("On request with method and URI matching a route with CORS handling enabled, classed as a simple CORS request", () => {
 
         });
 
-        describe("On request with OPTIONS method and a URI which matches at least one route, which classes as a preflight request", () => {
+        describe("On request with method and URI matching a route with CORS handling not enabled, classed as a simple CORS request", () => {
 
         });
 
-        describe("On request with OPTIONS method and a URI, where the URI does not match any routes, which would not class as a preflight request", () => {
+        describe("On request with OPTIONS method and a URI which matches at least one route, not classed as a preflight request", () => {
 
         });
 
-        describe("On request with OPTIONS method and a URI, where the URI does not match any routes, which ould class as a preflight request", () => {
+        describe("On request with OPTIONS method and a URI, where the URI does not match any routes, not classed as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled, classed as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI, where the URI does not match any routes any routes CORS handling enabled, classed as preflight request", () => {
 
         });
 
