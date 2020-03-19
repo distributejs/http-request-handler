@@ -556,7 +556,60 @@ describe("Class HttpRequestHandler", () => {
         });
 
         describe("On request with method and URI matching a route with CORS handling not enabled, classed as a simple CORS request", () => {
+            let httpRequestHandler: HttpRequestHandler;
 
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        cors: {
+                            enabled: false,
+                            origin: "*",
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin header", async() => {
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                    "origin": "https://unknown.distributejs.org",
+                }))).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://unknown.distributejs.org",
+                }))).not.toHaveProperty("headers.access-control-allow-origin");
+            });
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route, not classed as a preflight request", () => {
