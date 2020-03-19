@@ -482,6 +482,8 @@ describe("Class HttpRequestHandler", () => {
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
                             response.end();
                         }),
                         method: "GET",
@@ -494,6 +496,8 @@ describe("Class HttpRequestHandler", () => {
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
                             response.end();
                         }),
                         method: "POST",
@@ -512,13 +516,43 @@ describe("Class HttpRequestHandler", () => {
                 server.removeAllListeners("request");
             });
 
-            test.todo("Sends a response with status code indicating success e.g. 200 OK, 201 Created");
+            test("Sends a response with status code indicating success e.g. 200 OK, 201 Created", async() => {
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.:status", 200);
 
-            test.todo("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origin` value is `*`");
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.:status", 201);
+            });
 
-            test.todo("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route");
+            test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origin` value is `*`", async() => {
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-allow-origin", "*");
+            });
 
-            test.todo("Sends a response without Access-Control-Allow-Origin header, if the value of Access-Control-Request-Origin is not found in `cors.origin` of the matched route");
+            test("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route", async() => {
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin header, if the value of Access-Control-Request-Origin is not found in `cors.origin` of the matched route", async() => {
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://unknown.distributejs.org",
+                }))).not.toHaveProperty("headers.access-control-allow-origin");
+            });
         });
 
         describe("On request with method and URI matching a route with CORS handling not enabled, classed as a simple CORS request", () => {
