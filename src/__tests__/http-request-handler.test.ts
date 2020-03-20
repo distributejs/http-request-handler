@@ -617,7 +617,63 @@ describe("Class HttpRequestHandler", () => {
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route, not classed as a preflight request", () => {
+            let httpRequestHandler: HttpRequestHandler;
 
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        cors: {
+                            enabled: true,
+                            origins: ["*"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, but no Access-Control-Allow-Origin header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+
+                expect(response).not.toHaveProperty("Access-Control-Allow-Origin");
+            });
         });
 
         describe("On request with OPTIONS method and a URI, where the URI does not match any routes, not classed as a preflight request", () => {
