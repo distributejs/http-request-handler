@@ -13,7 +13,7 @@ export interface RouteCorsSettings {
 
     maxAge?: number;
 
-    origin: string;
+    origins: string[];
 }
 
 interface PathRegExpAndParameters {

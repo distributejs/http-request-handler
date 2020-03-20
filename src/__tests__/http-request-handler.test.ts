@@ -478,7 +478,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
-                            origin: "*",
+                            origins: ["*"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
@@ -492,7 +492,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
-                            origin: "https://developers.distributejs.org",
+                            origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
@@ -538,12 +538,16 @@ describe("Class HttpRequestHandler", () => {
                 }))).toHaveProperty("headers.access-control-allow-origin", "*");
             });
 
-            test("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route", async() => {
-                expect((await httpCheck.send({
+            test("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin and with a Vary header with value `Origin`, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route", async() => {
+                const response = await httpCheck.send({
                     ":method": "POST",
                     ":path": "/items",
                     "origin": "https://developers.distributejs.org",
-                }))).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+
+                expect(response).toHaveProperty("headers.vary", "Origin");
             });
 
             test("Sends a response without Access-Control-Allow-Origin header, if the value of Access-Control-Request-Origin is not found in `cors.origin` of the matched route", async() => {
@@ -563,7 +567,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: false,
-                            origin: "*",
+                            origins: ["*"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
