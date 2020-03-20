@@ -605,13 +605,13 @@ describe("Class HttpRequestHandler", () => {
                 expect((await httpCheck.send({
                     ":method": "GET",
                     ":path": "/items",
-                    "origin": "https://unknown.distributejs.org",
+                    "origin": "https://developers.distributejs.org",
                 }))).not.toHaveProperty("headers.access-control-allow-origin");
 
                 expect((await httpCheck.send({
                     ":method": "POST",
                     ":path": "/items",
-                    "origin": "https://unknown.distributejs.org",
+                    "origin": "https://developers.distributejs.org",
                 }))).not.toHaveProperty("headers.access-control-allow-origin");
             });
         });
