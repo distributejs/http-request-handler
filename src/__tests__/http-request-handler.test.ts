@@ -677,7 +677,59 @@ describe("Class HttpRequestHandler", () => {
         });
 
         describe("On request with OPTIONS method and a URI, where the URI does not match any routes, not classed as a preflight request", () => {
+            let httpRequestHandler: HttpRequestHandler;
 
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        cors: {
+                            enabled: true,
+                            origins: ["*"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/favorites/",
+                });
+
+                expect(response.headers[":status"]).toEqual(404);
+            });
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled, classed as a preflight request", () => {
