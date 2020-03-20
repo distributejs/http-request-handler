@@ -72,9 +72,9 @@ export class HttpRequestHandler {
             return;
         }
 
-        const matchedRoute = this.router.match(request.method, requestUrl.pathname);
+        const routerMatch = this.router.match(request.method, requestUrl.pathname);
 
-        if (!matchedRoute) {
+        if (!routerMatch) {
             const allowedMethods = this.router.listMethodsForPath(requestUrl.pathname);
 
             if (!allowedMethods) {
@@ -94,10 +94,20 @@ export class HttpRequestHandler {
             return;
         }
 
-        const operationTargetFn = matchedRoute.route.targetFn as Fulfil;
+        const accessControlAllowOrigin = this.matchAllowedOrigin(routerMatch.route, request.headers.origin as string);
+
+        if (accessControlAllowOrigin) {
+            response.setHeader("access-control-allow-origin", accessControlAllowOrigin);
+
+            if (accessControlAllowOrigin != "*") {
+                response.setHeader("vary", "Origin");
+            }
+        }
+
+        const operationTargetFn = routerMatch.route.targetFn as Fulfil;
 
         const context: OperationContext = {
-            pathArgs: matchedRoute.args,
+            pathArgs: routerMatch.args,
             url: requestUrl,
         };
 
@@ -107,5 +117,26 @@ export class HttpRequestHandler {
 
                 response.end();
             });
+    }
+
+    protected matchAllowedOrigin(route: Route, origin: string): string {
+        if (!origin) {
+            return null;
+        }
+
+        if (!route.cors || !route.cors.enabled) {
+            return null;
+        }
+
+        let allowedOrigin: string;
+
+        if (route.cors.origins.includes("*")) {
+            allowedOrigin = "*";
+        }
+        else {
+            allowedOrigin = route.cors.origins.includes(origin) ? origin : null;
+        }
+
+        return allowedOrigin;
     }
 }
