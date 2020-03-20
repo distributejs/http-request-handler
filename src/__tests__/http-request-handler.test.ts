@@ -470,7 +470,7 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with method and URI matching a route with CORS handling enabled, classed as a simple CORS request", () => {
+        describe("On request with method and URI matching a route with CORS handling enabled with credentials not allowed, classed as a simple CORS request", () => {
             let httpRequestHandler: HttpRequestHandler;
 
             beforeEach(() => {
@@ -536,6 +536,97 @@ describe("Class HttpRequestHandler", () => {
                     ":path": "/items",
                     "origin": "https://developers.distributejs.org",
                 }))).toHaveProperty("headers.access-control-allow-origin", "*");
+            });
+
+            test("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin and with a Vary header with value `Origin`, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route", async() => {
+                const response = await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+
+                expect(response).toHaveProperty("headers.vary", "Origin");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin header, if the value of Access-Control-Request-Origin is not found in `cors.origin` of the matched route", async() => {
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://unknown.distributejs.org",
+                }))).not.toHaveProperty("headers.access-control-allow-origin");
+            });
+        });
+
+        describe("On request with method and URI matching a route with CORS handling enabled with credentials allowed, classed as a simple CORS request", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        cors: {
+                            credentialsAllowed: true,
+                            enabled: true,
+                            origins: ["*"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        cors: {
+                            credentialsAllowed: true,
+                            enabled: true,
+                            origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code indicating success e.g. 200 OK, 201 Created", async() => {
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.:status", 200);
+
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.:status", 201);
+            });
+
+            test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origin` value is `*`", async() => {
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
             });
 
             test("Sends a response with Access-Control-Allow-Origin header set to the value of Access-Control-Request-Origin and with a Vary header with value `Origin`, if the value of Access-Control-Request-Origin is found in `cors.origin` of the matched route", async() => {

@@ -7,6 +7,8 @@ export enum RouteMethods {
 }
 
 export interface RouteCorsSettings {
+    credentialsAllowed?: boolean;
+
     enabled: boolean;
 
     headers?: string[];
