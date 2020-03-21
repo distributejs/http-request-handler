@@ -7,11 +7,13 @@ export enum RouteMethods {
 }
 
 export interface RouteCorsSettings {
+    allowedHeaders?: string[];
+
     credentialsAllowed?: boolean;
 
     enabled: boolean;
 
-    headers?: string[];
+    exposedHeaders?: string[];
 
     maxAge?: number;
 

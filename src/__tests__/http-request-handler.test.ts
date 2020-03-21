@@ -493,6 +493,7 @@ describe("Class HttpRequestHandler", () => {
                         cors: {
                             credentialsAllowed: false,
                             enabled: true,
+                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -507,6 +508,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
+                            exposedHeaders: ["*"],
                             origins: ["*", "https://developers.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -584,6 +586,20 @@ describe("Class HttpRequestHandler", () => {
                     "origin": "https://unknown.distributejs.org",
                 }))).not.toHaveProperty("headers.access-control-allow-origin");
             });
+
+            test("Sends a response with formatted Access-Control-Expose-Headers, if the matched route has any `cors.exposedHeaders` and the value of Origin is found in `cors.origins` of the matched route", async() => {
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-expose-headers", "X-Custom-Header, Content-Length");
+
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/status",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-expose-headers", "*");
+            });
         });
 
         describe("On request with method and URI matching a route with CORS handling enabled with credentials allowed, classed as a simple CORS request", () => {
@@ -610,6 +626,7 @@ describe("Class HttpRequestHandler", () => {
                         cors: {
                             credentialsAllowed: true,
                             enabled: true,
+                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -625,6 +642,7 @@ describe("Class HttpRequestHandler", () => {
                         cors: {
                             credentialsAllowed: true,
                             enabled: true,
+                            exposedHeaders: ["*"],
                             origins: ["*", "https://developers.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -701,6 +719,20 @@ describe("Class HttpRequestHandler", () => {
                     ":path": "/items",
                     "origin": "https://unknown.distributejs.org",
                 }))).not.toHaveProperty("headers.access-control-allow-origin");
+            });
+
+            test("Sends a response with formatted Access-Control-Expose-Headers, if the matched route has any `cors.exposedHeaders` and the value of Origin is found in `cors.origins` of the matched route", async() => {
+                expect((await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-expose-headers", "X-Custom-Header, Content-Length");
+
+                expect((await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/status",
+                    "origin": "https://developers.distributejs.org",
+                }))).toHaveProperty("headers.access-control-expose-headers", "*");
             });
         });
 

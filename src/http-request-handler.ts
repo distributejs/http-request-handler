@@ -105,6 +105,12 @@ export class HttpRequestHandler {
                 if (accessControlAllowOrigin != "*") {
                     response.setHeader("vary", "Origin");
                 }
+
+                if (routerMatch.route.cors.exposedHeaders) {
+                    response.setHeader("access-control-expose-headers", routerMatch.route.cors.exposedHeaders.map((unformattedHeaderName: string) => {
+                        return this.formatHeaderName(unformattedHeaderName);
+                    }).join(", "));
+                }
             }
         }
 
@@ -121,6 +127,10 @@ export class HttpRequestHandler {
 
                 response.end();
             });
+    }
+
+    protected formatHeaderName(unformattedHeaderName: string): string {
+        return unformattedHeaderName.split("-").map((chunk: string) => chunk.substr(0, 1).toUpperCase() + chunk.substr(1).toLowerCase()).join("-");
     }
 
     protected matchAllowedOrigin(route: Route, origin: string): string {
