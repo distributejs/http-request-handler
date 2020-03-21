@@ -491,6 +491,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         cors: {
+                            credentialsAllowed: false,
                             enabled: true,
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
