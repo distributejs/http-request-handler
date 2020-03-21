@@ -623,6 +623,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         cors: {
+                            credentialsAllowed: true,
                             enabled: true,
                             origins: ["*", "https://developers.distributejs.org"],
                         },
