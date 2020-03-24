@@ -1208,7 +1208,7 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).not.toHaveProperty("headers.access-control-allow-credentials");
             });
 
-            test("Sends a response with Access-Control-Max-Age header, if `cors.maxAge` is set for route", async () => {
+            test("Sends a response with Access-Control-Max-Age header, if `cors.maxAge` is set for route", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items/strawberries",
@@ -1220,7 +1220,7 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).toHaveProperty("headers.max-age", "3600");
             });
 
-            test("Sends a response with no Access-Control-Max-Age header, if `cors.maxAge` is set not for route", async () => {
+            test("Sends a response without Access-Control-Max-Age header, if `cors.maxAge` is set not for route", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
