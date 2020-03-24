@@ -849,7 +849,7 @@ describe("Class HttpRequestHandler", () => {
 
                 expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
 
-                expect(response).not.toHaveProperty("Access-Control-Allow-Origin");
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
             });
         });
 
