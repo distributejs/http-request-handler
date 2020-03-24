@@ -910,7 +910,191 @@ describe("Class HttpRequestHandler", () => {
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled with credentials not supported, classed as a preflight request", () => {
+            let httpRequestHandler: HttpRequestHandler;
 
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        cors: {
+                            credentialsSupported: false,
+                            enabled: true,
+                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
+                            origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            exposedHeaders: ["*"],
+                            origins: ["*", "https://developers.distributejs.org"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/status",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 204 No Content and no Allow header, if Origin and Access-Control-Allow-Methods are valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "POST",
+                    ":path": "/items",
+                    "content-type": "application/json",
+                    "access-control-request-method": "POST",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).not.toHaveProperty("headers.allow");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, if Origin is not present", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://unknown.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Origin is not present", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, if Origin is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://unknown.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Origin is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://unknown.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, Access-Control-Allow-Methods and Access-Control-Allow-Headers header, if Access-Control-Request-Method is not present", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Method is not present", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, Access-Control-Allow-Methods and Access-Control-Allow-Headers header, if Access-Control-Request-Method is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "GET",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Method is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled with credentials supported, classed as a preflight request", () => {
