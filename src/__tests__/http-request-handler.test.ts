@@ -1191,7 +1191,7 @@ describe("Class HttpRequestHandler", () => {
             test("Sends a response with Access-Control-Allow-Origin header set to the value of Origin and a Vary header with value `Origin`, but no Access-Control-Allow-Credentials header, if `cors.origins` of the matched route contains both `*` and the value of Origin header", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
-                    ":path": "/items",
+                    ":path": "/items/strawberries",
                     "access-control-request-method": "PUT",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
@@ -1231,7 +1231,7 @@ describe("Class HttpRequestHandler", () => {
             test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is not a simple method", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
-                    ":path": "/items",
+                    ":path": "/items/strawberries",
                     "access-control-request-method": "PUT",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
@@ -1267,7 +1267,7 @@ describe("Class HttpRequestHandler", () => {
             test("Sends a response without Access-Control-Allow-Headers header, if the `cors.allowedHeaders` for the route does not exist or is empty", async() => {
                 const response1 = await httpCheck.send({
                     ":method": "OPTIONS",
-                    ":path": "/items",
+                    ":path": "/items/strawberries",
                     "access-control-request-method": "PUT",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
@@ -1277,7 +1277,7 @@ describe("Class HttpRequestHandler", () => {
 
                 const response2 = await httpCheck.send({
                     ":method": "OPTIONS",
-                    ":path": "/items",
+                    ":path": "/items/strawberries",
                     "access-control-request-method": "PATCH",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
