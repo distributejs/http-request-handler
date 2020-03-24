@@ -548,11 +548,15 @@ describe("Class HttpRequestHandler", () => {
             });
 
             test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origins` value has only `*`", async() => {
-                expect((await httpCheck.send({
+                const response = await httpCheck.send({
                     ":method": "GET",
                     ":path": "/items",
                     "origin": "https://developers.distributejs.org",
-                }))).toHaveProperty("headers.access-control-allow-origin", "*");
+            });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "*");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-credentials");
             });
 
             test("Sends a response with Access-Control-Allow-Origin header set to the value of Origin and a Vary header with value `Origin`, but no Access-Control-Allow-Credentials header, if the value of Origin is found in `cors.origins` of the matched route", async() => {
@@ -686,11 +690,15 @@ describe("Class HttpRequestHandler", () => {
             });
 
             test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origins` value has only `*`", async() => {
-                expect((await httpCheck.send({
+                const response = await httpCheck.send({
                     ":method": "GET",
                     ":path": "/items",
                     "origin": "https://developers.distributejs.org",
-                }))).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+                })
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+
+                expect(response).toHaveProperty("headers.access-control-allow-credentials", "true");
             });
 
             test("Sends a response with Access-Control-Allow-Origin header set to the value of Origin, Access-Control-Allow-Credentials with value true, and a Vary header with value `Origin`, if the value of Origin is found in `cors.origins` of the matched route", async() => {
