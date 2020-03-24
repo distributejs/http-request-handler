@@ -98,7 +98,7 @@ export class HttpRequestHandler {
             const matchedAllowedOrigin = this.matchAllowedOrigin(routerMatch.route, request.headers.origin as string);
 
             if (matchedAllowedOrigin) {
-                const accessControlAllowOrigin = routerMatch.route.cors.credentialsAllowed ? request.headers.origin : matchedAllowedOrigin;
+                const accessControlAllowOrigin = routerMatch.route.cors.credentialsSupported ? request.headers.origin : matchedAllowedOrigin;
 
                 response.setHeader("access-control-allow-origin", accessControlAllowOrigin);
 

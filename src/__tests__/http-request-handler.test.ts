@@ -470,7 +470,7 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with method and URI matching a route with CORS handling enabled with credentials not allowed, classed as a simple CORS request", () => {
+        describe("On request with method and URI matching a route with CORS handling enabled with credentials not supported, classed as a simple CORS request", () => {
             let httpRequestHandler: HttpRequestHandler;
 
             beforeEach(() => {
@@ -491,7 +491,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         cors: {
-                            credentialsAllowed: false,
+                            credentialsSupported: false,
                             enabled: true,
                             exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
@@ -602,14 +602,14 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with method and URI matching a route with CORS handling enabled with credentials allowed, classed as a simple CORS request", () => {
+        describe("On request with method and URI matching a route with CORS handling enabled with credentials supported, classed as a simple CORS request", () => {
             let httpRequestHandler: HttpRequestHandler;
 
             beforeEach(() => {
                 const operations: Operation[] = [
                     {
                         cors: {
-                            credentialsAllowed: true,
+                            credentialsSupported: true,
                             enabled: true,
                             origins: ["*"],
                         },
@@ -624,7 +624,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         cors: {
-                            credentialsAllowed: true,
+                            credentialsSupported: true,
                             enabled: true,
                             exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
@@ -640,7 +640,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         cors: {
-                            credentialsAllowed: true,
+                            credentialsSupported: true,
                             enabled: true,
                             exposedHeaders: ["*"],
                             origins: ["*", "https://developers.distributejs.org"],

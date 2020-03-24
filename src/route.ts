@@ -9,7 +9,7 @@ export enum RouteMethods {
 export interface RouteCorsSettings {
     allowedHeaders?: string[];
 
-    credentialsAllowed?: boolean;
+    credentialsSupported?: boolean;
 
     enabled: boolean;
 
