@@ -1228,7 +1228,7 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).not.toHaveProperty("headers.max-age");
             });
 
-            test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is not a simple method", async() => {
+            test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is valid for the URI and is not a simple method", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items/strawberries",
@@ -1240,7 +1240,7 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).toHaveProperty("headers.access-control-allow-methods", "PUT");
             });
 
-            test("Sends a response without Access-Control-Allow-Methods header, if the Access-Control-Request-Method is a simple method", async() => {
+            test("Sends a response without Access-Control-Allow-Methods header, if the Access-Control-Request-Method is valid for the URI and is a simple method", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
