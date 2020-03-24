@@ -552,7 +552,7 @@ describe("Class HttpRequestHandler", () => {
                     ":method": "GET",
                     ":path": "/items",
                     "origin": "https://developers.distributejs.org",
-            });
+                });
 
                 expect(response).toHaveProperty("headers.access-control-allow-origin", "*");
 
@@ -944,6 +944,7 @@ describe("Class HttpRequestHandler", () => {
                         cors: {
                             credentialsSupported: false,
                             enabled: true,
+                            allowedHeaders: ["x-forwarded-for", "Content-Type"],
                             exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
@@ -959,17 +960,35 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
-                            exposedHeaders: ["*"],
+                            allowedHeaders: ["x-forwarded-for", "content-type"],
+                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
+                            origins: ["*"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "PATCH",
+                        path: "/items/{itemSlug}",
+                    },
+                    {
+                        cors: {
+                            enabled: true,
+                            allowedHeaders: ["x-forwarded-for", "content-type"],
+                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
+                            maxAge: 3600,
                             origins: ["*", "https://developers.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
-                            response.statusCode = 200;
+                            response.statusCode = 201;
 
                             response.end();
                         }),
-                        method: "GET",
-                        path: "/status",
+                        method: "PUT",
+                        path: "/items/{itemSlug}",
                     },
                 ];
 
@@ -1110,6 +1129,107 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).toHaveProperty("headers.:status", 204);
 
                 expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, Access-Control-Allow-Methods and Access-Control-Allow-Headers header, if Access-Control-Request-Headers is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "origin": "https://developers.distributejs.org",
+                    "x-unknown": "unknown",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Headers is not valid for URI", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                    "x-unknown": "unknown",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+            });
+
+            test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origins` value has only `*`", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items/strawberries",
+                    "access-control-request-method": "PATCH",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "*");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-credentials");
+            });
+
+            test("Sends a response with Access-Control-Allow-Origin header set to the value of Origin and a Vary header with value `Origin`, but no Access-Control-Allow-Credentials header, if the value of Origin is found in `cors.origins` of the matched route", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+
+                expect(response).toHaveProperty("headers.vary", "Origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-credentials");
+            });
+
+            test("Sends a response with Access-Control-Allow-Origin header set to the value of Origin and a Vary header with value `Origin`, but no Access-Control-Allow-Credentials header, if `cors.origins` of the matched route contains both `*` and the value of Origin header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-origin", "https://developers.distributejs.org");
+
+                expect(response).toHaveProperty("headers.vary", "Origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-credentials");
+            });
+
+            test("Sends a response with Access-Control-Max-Age header, if `cors.maxAge` is set for route", async () => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items/strawberries",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.max-age", "3600");
+            });
+
+            test("Sends a response with no Access-Control-Max-Age header, if `cors.maxAge` is set not for route", async () => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.max-age");
             });
         });
 
