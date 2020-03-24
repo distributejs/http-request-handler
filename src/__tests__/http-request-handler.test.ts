@@ -918,7 +918,62 @@ describe("Class HttpRequestHandler", () => {
         });
 
         describe("On request with OPTIONS method and a URI, where the URI does not match any routes any routes CORS handling enabled, classed as preflight request", () => {
+            let httpRequestHandler: HttpRequestHandler;
 
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        cors: {
+                            enabled: false,
+                            origins: ["*"],
+                        },
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 200;
+
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.statusCode = 201;
+
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response without Access-Control-Allow-Origin, Access-Control-Allow-Methods and Access-Control-Allow-Headers header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-origin");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
         });
 
         describe("On request matching a route which has an uncaught error in its fulfil function", () => {
