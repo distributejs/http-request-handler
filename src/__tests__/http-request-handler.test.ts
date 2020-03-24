@@ -1231,6 +1231,30 @@ describe("Class HttpRequestHandler", () => {
 
                 expect(response).not.toHaveProperty("headers.max-age");
             });
+
+            test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is not a simple method", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-methods", "PUT");
+            });
+
+            test("Sends a response without Access-Control-Allow-Methods header, if the Access-Control-Request-Method is a simple method", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+            });
         });
 
         describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled with credentials supported, classed as a preflight request", () => {
