@@ -909,7 +909,11 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled, classed as a preflight request", () => {
+        describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled with credentials not supported, classed as a preflight request", () => {
+
+        });
+
+        describe("On request with OPTIONS method and a URI which matches at least one route with CORS handling enabled with credentials supported, classed as a preflight request", () => {
 
         });
 
