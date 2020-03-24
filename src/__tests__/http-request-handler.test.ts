@@ -917,7 +917,7 @@ describe("Class HttpRequestHandler", () => {
 
         });
 
-        describe("On request with OPTIONS method and a URI, where the URI does not match any routes any routes CORS handling enabled, classed as preflight request", () => {
+        describe("On request with OPTIONS method and a URI, with URI matching a route with CORS handling not enabled, classed as preflight request", () => {
             let httpRequestHandler: HttpRequestHandler;
 
             beforeEach(() => {
@@ -973,6 +973,19 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).not.toHaveProperty("headers.access-control-allow-methods");
 
                 expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, but no Access-Control-Allow-Origin header", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
+
+                expect(response).not.toHaveProperty("Access-Control-Allow-Origin");
             });
         });
 
