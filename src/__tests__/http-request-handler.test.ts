@@ -1248,7 +1248,7 @@ describe("Class HttpRequestHandler", () => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
-                    "access-control-request-method": "PUT",
+                    "access-control-request-method": "POST",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
                 });
