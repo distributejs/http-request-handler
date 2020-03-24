@@ -945,7 +945,6 @@ describe("Class HttpRequestHandler", () => {
                             credentialsSupported: false,
                             enabled: true,
                             allowedHeaders: ["x-forwarded-for", "Content-Type"],
-                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             origins: ["https://developers.distributejs.org", "https://sandbox.distributejs.org"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -960,8 +959,7 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
-                            allowedHeaders: ["x-forwarded-for", "content-type"],
-                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
+                            allowedHeaders: [],
                             origins: ["*"],
                         },
                         // eslint-disable-next-line @typescript-eslint/require-await
@@ -976,8 +974,6 @@ describe("Class HttpRequestHandler", () => {
                     {
                         cors: {
                             enabled: true,
-                            allowedHeaders: ["x-forwarded-for", "content-type"],
-                            exposedHeaders: ["x-CUSTOM-header", "Content-Length"],
                             maxAge: 3600,
                             origins: ["*", "https://developers.distributejs.org"],
                         },
@@ -1254,6 +1250,40 @@ describe("Class HttpRequestHandler", () => {
                 });
 
                 expect(response).not.toHaveProperty("headers.access-control-allow-methods");
+            });
+
+            test("Sends a response with Access-Control-Allow-Headers header with formatted supported header names, if the `cors.allowedHeaders` for the route exists and is not empty", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.access-control-allow-headers", "X-Forwarded-For, Content-Type");
+            });
+
+            test("Sends a response without Access-Control-Allow-Headers header, if the `cors.allowedHeaders` for the route does not exist or is empty", async() => {
+                const response1 = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response1).not.toHaveProperty("headers.access-control-allow-headers");
+
+                const response2 = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items",
+                    "access-control-request-method": "PATCH",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response2).not.toHaveProperty("headers.access-control-allow-headers");
             });
         });
 
