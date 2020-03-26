@@ -1132,9 +1132,9 @@ describe("Class HttpRequestHandler", () => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
+                    "access-control-request-headers": "x-unknown",
                     "access-control-request-method": "POST",
                     "origin": "https://developers.distributejs.org",
-                    "x-unknown": "unknown",
                 });
 
                 expect(response).not.toHaveProperty("headers.access-control-allow-origin");
@@ -1148,10 +1148,10 @@ describe("Class HttpRequestHandler", () => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
+                    "access-control-request-headers": "x-unknown",
                     "access-control-request-method": "POST",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
-                    "x-unknown": "unknown",
                 });
 
                 expect(response).toHaveProperty("headers.:status", 204);
@@ -1497,9 +1497,9 @@ describe("Class HttpRequestHandler", () => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
+                    "access-control-request-headers": "x-unknown",
                     "access-control-request-method": "POST",
                     "origin": "https://developers.distributejs.org",
-                    "x-unknown": "unknown",
                 });
 
                 expect(response).not.toHaveProperty("headers.access-control-allow-origin");
@@ -1513,10 +1513,10 @@ describe("Class HttpRequestHandler", () => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
                     ":path": "/items",
+                    "access-control-request-headers": "x-unknown",
                     "access-control-request-method": "POST",
                     "content-type": "application/json",
                     "origin": "https://developers.distributejs.org",
-                    "x-unknown": "unknown",
                 });
 
                 expect(response).toHaveProperty("headers.:status", 204);
