@@ -63,6 +63,10 @@ export class HttpRequestHandler {
                 return;
             }
 
+            if (this.handleAsPreflightRequest(request, requestUrl, response)) {
+                return;
+            }
+
             response.writeHead(204, {
                 "allow": allowedMethods.join(", "),
             });
@@ -138,6 +142,77 @@ export class HttpRequestHandler {
 
     protected formatHeaderName(unformattedHeaderName: string): string {
         return unformattedHeaderName.split("-").map((chunk: string) => chunk.substr(0, 1).toUpperCase() + chunk.substr(1).toLowerCase()).join("-");
+    }
+
+    protected handleAsPreflightRequest(request: Http2ServerRequest | IncomingMessage, requestUrl: URL, response: Http2ServerResponse | ServerResponse): boolean {
+        if (!request.headers.origin) {
+            return false;
+        }
+
+        if (!request.headers["access-control-request-method"]) {
+            return false;
+        }
+
+        const routerMatch = this.router.match(request.headers["access-control-request-method"] as string, requestUrl.pathname);
+
+        if (!routerMatch) {
+            return false;
+        }
+
+        if (!routerMatch.route.cors || !routerMatch.route.cors.enabled) {
+            return false;
+        }
+
+        if (request.headers['access-control-request-headers'] && request.headers['access-control-request-headers'] != "") {
+            const accessControlHeaderNames = ((request.headers['access-control-request-headers'] as string).split(",")).map(rawHeaderName => rawHeaderName.trim());
+
+            if (accessControlHeaderNames.length && !routerMatch.route.cors.allowedHeaders) {
+                return false;
+            }
+
+            if (accessControlHeaderNames.filter(headerName => routerMatch.route.cors.allowedHeaders.includes(headerName)).length != accessControlHeaderNames.length) {
+                return false;
+            }
+        }
+
+        const matchedAllowedOrigin = this.matchAllowedOrigin(routerMatch.route, request.headers.origin as string);
+
+        if (!matchedAllowedOrigin) {
+            return false;
+        }
+
+        if (!["GET", "HEAD", "POST"].includes((request.headers["access-control-request-method"] as string))) {
+            response.setHeader("access-control-allow-methods", request.headers["access-control-request-method"]);
+        }
+
+        if (routerMatch.route.cors.allowedHeaders && routerMatch.route.cors.allowedHeaders.length) {
+            response.setHeader("access-control-allow-headers", routerMatch.route.cors.allowedHeaders.map(unformattedHeaderName => this.formatHeaderName(unformattedHeaderName)).join(", "));
+        }
+
+        if (routerMatch.route.cors.credentialsSupported) {
+            response.setHeader("access-control-allow-origin", request.headers.origin);
+
+            response.setHeader("access-control-allow-credentials", "true");
+
+            response.setHeader("vary", "Origin");
+        }
+        else {
+            response.setHeader("access-control-allow-origin", matchedAllowedOrigin);
+
+            if (matchedAllowedOrigin != "*") {
+                response.setHeader("vary", "Origin");
+            }
+        }
+
+        if (routerMatch.route.cors.maxAge) {
+            response.setHeader("access-control-max-age", routerMatch.route.cors.maxAge);
+        }
+
+        response.statusCode = 204;
+
+        response.end();
+
+        return true;
     }
 
     protected matchAllowedOrigin(route: Route, origin: string): string {
