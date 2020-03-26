@@ -1159,6 +1159,21 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).toHaveProperty("headers.allow", "GET, HEAD, OPTIONS, POST");
             });
 
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Headers is not empty and the route has no `cors.allowedHeaders` specified", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items/strawberries",
+                    "access-control-request-headers": "x-unknown",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "OPTIONS, PATCH, PUT");
+            });
+
             test("Sends a response with Access-Control-Allow-Origin header set to `*`, if the matched route `cors.origins` value has only `*`", async() => {
                 const response = await httpCheck.send({
                     ":method": "OPTIONS",
@@ -1449,6 +1464,21 @@ describe("Class HttpRequestHandler", () => {
                 expect(response).not.toHaveProperty("headers.access-control-allow-methods");
 
                 expect(response).not.toHaveProperty("headers.access-control-allow-headers");
+            });
+
+            test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Headers is not empty and the route has no `cors.allowedHeaders` specified", async() => {
+                const response = await httpCheck.send({
+                    ":method": "OPTIONS",
+                    ":path": "/items/strawberries",
+                    "access-control-request-headers": "x-unknown",
+                    "access-control-request-method": "PUT",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
+                });
+
+                expect(response).toHaveProperty("headers.:status", 204);
+
+                expect(response).toHaveProperty("headers.allow", "OPTIONS, PATCH, PUT");
             });
 
             test("Sends a response with status 204 and a Allow header listing allowed methods, if Access-Control-Request-Method is not present", async() => {
