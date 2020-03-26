@@ -118,9 +118,9 @@ export class HttpRequestHandler {
                 }
 
                 if (routerMatch.route.cors.exposedHeaders) {
-                    response.setHeader("access-control-expose-headers", routerMatch.route.cors.exposedHeaders.map((unformattedHeaderName: string) => {
-                        return this.formatHeaderName(unformattedHeaderName);
-                    }).join(", "));
+                    response.setHeader(
+                        "access-control-expose-headers",
+                        routerMatch.route.cors.exposedHeaders.map((unformattedHeaderName: string) => this.formatHeaderName(unformattedHeaderName)).join(", "));
                 }
             }
         }
@@ -186,7 +186,9 @@ export class HttpRequestHandler {
         }
 
         if (routerMatch.route.cors.allowedHeaders && routerMatch.route.cors.allowedHeaders.length) {
-            response.setHeader("access-control-allow-headers", routerMatch.route.cors.allowedHeaders.map(unformattedHeaderName => this.formatHeaderName(unformattedHeaderName)).join(", "));
+            response.setHeader(
+                "access-control-allow-headers",
+                routerMatch.route.cors.allowedHeaders.map(unformattedHeaderName => this.formatHeaderName(unformattedHeaderName)).join(", "));
         }
 
         if (routerMatch.route.cors.credentialsSupported) {
