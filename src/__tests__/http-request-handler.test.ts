@@ -1001,10 +1001,11 @@ describe("Class HttpRequestHandler", () => {
 
             test("Sends a response with status code 204 No Content and no Allow header, if Origin and Access-Control-Allow-Methods are valid for URI", async() => {
                 const response = await httpCheck.send({
-                    ":method": "POST",
+                    ":method": "OPTIONS",
                     ":path": "/items",
-                    "content-type": "application/json",
                     "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
                 });
 
                 expect(response).toHaveProperty("headers.:status", 204);
@@ -1365,10 +1366,11 @@ describe("Class HttpRequestHandler", () => {
 
             test("Sends a response with status code 204 No Content and no Allow header, if Origin and Access-Control-Allow-Methods are valid for URI", async() => {
                 const response = await httpCheck.send({
-                    ":method": "POST",
+                    ":method": "OPTIONS",
                     ":path": "/items",
-                    "content-type": "application/json",
                     "access-control-request-method": "POST",
+                    "content-type": "application/json",
+                    "origin": "https://developers.distributejs.org",
                 });
 
                 expect(response).toHaveProperty("headers.:status", 204);
