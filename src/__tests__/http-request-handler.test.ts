@@ -1214,7 +1214,7 @@ describe("Class HttpRequestHandler", () => {
                     "origin": "https://developers.distributejs.org",
                 });
 
-                expect(response).toHaveProperty("headers.max-age", "3600");
+                expect(response).toHaveProperty("headers.access-control-max-age", "3600");
             });
 
             test("Sends a response without Access-Control-Max-Age header, if `cors.maxAge` is set not for route", async() => {
@@ -1226,7 +1226,7 @@ describe("Class HttpRequestHandler", () => {
                     "origin": "https://developers.distributejs.org",
                 });
 
-                expect(response).not.toHaveProperty("headers.max-age");
+                expect(response).not.toHaveProperty("headers.access-control-max-age");
             });
 
             test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is valid for the URI and is not a simple method", async() => {
@@ -1579,7 +1579,7 @@ describe("Class HttpRequestHandler", () => {
                     "origin": "https://developers.distributejs.org",
                 });
 
-                expect(response).toHaveProperty("headers.max-age", "3600");
+                expect(response).toHaveProperty("headers.access-control-max-age", "3600");
             });
 
             test("Sends a response without Access-Control-Max-Age header, if `cors.maxAge` is set not for route", async() => {
@@ -1591,7 +1591,7 @@ describe("Class HttpRequestHandler", () => {
                     "origin": "https://developers.distributejs.org",
                 });
 
-                expect(response).not.toHaveProperty("headers.max-age");
+                expect(response).not.toHaveProperty("headers.access-control-max-age");
             });
 
             test("Sends a response with Access-Control-Allow-Methods header, if the Access-Control-Request-Method is valid for the URI and is not a simple method", async() => {
