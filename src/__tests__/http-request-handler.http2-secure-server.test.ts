@@ -386,6 +386,50 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
+        describe("On request with a method and a URI, where the method is not implemented by the request handler", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 501 Not Implemented", async() => {
+                const response = await httpCheck.send({
+                    ":method": "TRACE",
+                    ":path": "/items",
+                });
+
+                expect(response.headers[":status"]).toEqual(501);
+            });
+        });
+
         describe("On request with a method and a URI, where the method does not match any routes with that URI", () => {
             let httpRequestHandler: HttpRequestHandler;
 
@@ -2169,6 +2213,50 @@ describe("Class HttpRequestHandler", () => {
                     ["itemSlug", "apples-pack-of-4"],
                     ["imageNumber", "2"],
                 ]));
+            });
+        });
+
+        describe("On request with a method and a URI, where the method is not implemented by the request handler", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 501 Not Implemented", async() => {
+                const response = await httpCheck.send({
+                    ":method": "TRACE",
+                    ":path": "/items",
+                });
+
+                expect(response.headers[":status"]).toEqual(501);
             });
         });
 

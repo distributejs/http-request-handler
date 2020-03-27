@@ -6,7 +6,7 @@ import { URL } from "url";
 
 import { Route, RouteMethods, RouteCorsSettings } from "./route";
 
-import { Router } from "./router";
+import { Router, RouterMethods } from "./router";
 
 import { TLSSocket } from "tls";
 
@@ -50,6 +50,14 @@ export class HttpRequestHandler {
     }
 
     public async handleRequest(request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): Promise<void> {
+        if (!Object.keys(RouterMethods).includes(request.method)) {
+            response.writeHead(501);
+
+            response.end();
+
+            return;
+        }
+
         let urlBase: string;
 
         if ((request as Http2ServerRequest).scheme && (request as Http2ServerRequest).authority) {
