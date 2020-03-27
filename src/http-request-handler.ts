@@ -8,6 +8,8 @@ import { Route, RouteMethods, RouteCorsSettings } from "./route";
 
 import { Router } from "./router";
 
+import { TLSSocket } from "tls";
+
 export interface Operation {
     cors?: RouteCorsSettings;
 
@@ -48,7 +50,14 @@ export class HttpRequestHandler {
     }
 
     public async handleRequest(request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): Promise<void> {
-        const urlBase = request.headers[":scheme"] + '://' + request.headers[":authority"];
+        let urlBase: string;
+
+        if ((request as Http2ServerRequest).scheme && (request as Http2ServerRequest).authority) {
+            urlBase = (request as Http2ServerRequest).scheme + "://" + (request as Http2ServerRequest).authority;
+        }
+        else {
+            urlBase = (request.socket instanceof TLSSocket ? "https" : "http") + "://" + request.headers.host;
+        }
 
         const requestUrl = new URL(request.url, urlBase);
 
