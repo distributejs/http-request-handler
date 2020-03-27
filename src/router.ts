@@ -1,6 +1,6 @@
 import { Route, RouteMethods } from "./route";
 
-enum RouterMethods {
+export enum RouterMethods {
     DELETE,
     GET,
     HEAD,
