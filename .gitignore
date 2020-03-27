@@ -5,3 +5,7 @@
 dist
 
 node_modules
+
+/ssl/*
+
+!/ssl/.gitkeep
