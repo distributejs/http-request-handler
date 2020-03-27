@@ -1806,8 +1806,7 @@ describe("Class HttpRequestHandler", () => {
         let server: Http2Server;
 
         beforeAll(async() => {
-            server = createHttp2Server({
-            });
+            server = createHttp2Server();
 
             httpCheck = new HttpCheck(server);
 
