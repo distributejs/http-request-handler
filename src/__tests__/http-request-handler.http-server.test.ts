@@ -513,6 +513,99 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
+        
+        describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end(JSON.stringify({
+                                "items": [],
+                            }));
+                        }),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with no body and a Content-Length header with a value representing the length of body of a response to a corresponding GET request", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                expect(response.data).toEqual("");
+
+                expect(response.headers).toHaveProperty("content-length", "12")
+            });
+        });
+
+        describe("On request with HEAD method, where a route with the same URI and GET method does not exist", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/favorites/",
+                });
+
+                expect(response.headers[":status"]).toEqual(404);
+            });
+        });
+
         describe("On request with method and URI matching a route with CORS handling enabled with credentials not supported, classed as a simple CORS request", () => {
             let httpRequestHandler: HttpRequestHandler;
 
