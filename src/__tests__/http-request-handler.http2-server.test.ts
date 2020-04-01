@@ -1,10 +1,11 @@
 import { HttpRequestHandler, Operation } from "../http-request-handler";
 
-import { createServer as createHttp2Server,  Http2Server } from "http2";
+import { createServer as createHttp2Server,  Http2Server, Http2ServerResponse } from "http2";
 
 import { URL } from "url";
 
 import { HttpCheck } from "@distributejs/http-check";
+import { ServerResponse } from "http";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Http2Server and a HTTP/2 client", () => {
@@ -506,6 +507,131 @@ describe("Class HttpRequestHandler", () => {
             test("Sends a response with status code 404 Not Found", async() => {
                 const response = await httpCheck.send({
                     ":method": "GET",
+                    ":path": "/favorites/",
+                });
+
+                expect(response.headers[":status"]).toEqual(404);
+            });
+        });
+
+        describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            let lastBytesWritten: number;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: async(context, request, response): Promise<void> => {
+                            response.setHeader("content-length", 12);
+
+                            response.end(JSON.stringify({
+                                "items": [],
+                            }));
+                        },
+                        method: "GET",
+                        path: "/items",
+                    },
+                    {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: async(context, request, response): Promise<void> => {
+                            response.end();
+                        },
+                        method: "POST",
+                        path: "/items",
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response: Http2ServerResponse) => {
+                    httpRequestHandler.handleRequest(request, response);
+
+                    lastBytesWritten = response.stream.writableLength;
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+
+                lastBytesWritten = undefined;
+            });
+
+            test("Sends a response with status code 200", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                expect(response.headers).toHaveProperty(":status", 200);
+            });
+
+            test("Sends a response with headers from corresponding operation with GET method", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                expect(response.headers).toHaveProperty("content-length", "12");
+            });
+
+            test("Sends a response with headers only", async() => {
+                await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnHead = lastBytesWritten;
+
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnGet = lastBytesWritten;
+
+                expect(bytesWrittenOnGet - bytesWrittenOnHead).toEqual(12);
+            });
+        });
+
+        describe("On request with HEAD method, where a route with the same URI and GET method does not exist", () => {
+            let httpRequestHandler: HttpRequestHandler;
+
+            beforeEach(() => {
+                const operations: Operation[] = [
+                    {
+                        method: "GET",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                    {
+                        method: "POST",
+                        path: "/items",
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                            response.end();
+                        }),
+                    },
+                ];
+
+                httpRequestHandler = new HttpRequestHandler(operations);
+
+                server.on("request", (request, response) => {
+                    httpRequestHandler.handleRequest(request, response);
+                });
+            });
+
+            afterEach(() => {
+                server.removeAllListeners("request");
+            });
+
+            test("Sends a response with status code 404 Not Found", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
                     ":path": "/favorites/",
                 });
 
