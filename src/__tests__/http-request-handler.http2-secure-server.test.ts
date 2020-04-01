@@ -526,22 +526,22 @@ describe("Class HttpRequestHandler", () => {
             beforeEach(() => {
                 const operations: Operation[] = [
                     {
-                        method: "GET",
-                        path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                        fulfil: async(context, request, response): Promise<void> => {
                             response.end(JSON.stringify({
                                 "items": [],
                             }));
-                        }),
+                        },
+                        method: "GET",
+                        path: "/items",
                     },
                     {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: async(context, request, response): Promise<void> => {
+                            response.end();
+                        },
                         method: "POST",
                         path: "/items",
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
-                            response.end();
-                        }),
                     },
                 ];
 
@@ -2448,22 +2448,22 @@ describe("Class HttpRequestHandler", () => {
             beforeEach(() => {
                 const operations: Operation[] = [
                     {
-                        method: "GET",
-                        path: "/items",
                         // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
+                        fulfil: async(context, request, response): Promise<void> => {
                             response.end(JSON.stringify({
                                 "items": [],
                             }));
-                        }),
+                        },
+                        method: "GET",
+                        path: "/items",
                     },
                     {
+                        // eslint-disable-next-line @typescript-eslint/require-await
+                        fulfil: async(context, request, response): Promise<void> => {
+                            response.end();
+                        },
                         method: "POST",
                         path: "/items",
-                        // eslint-disable-next-line @typescript-eslint/require-await
-                        fulfil: jest.fn(async(context, request, response): Promise<void> => {
-                            response.end();
-                        }),
                     },
                 ];
 
