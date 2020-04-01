@@ -2,13 +2,14 @@ import { readFileSync } from "fs";
 
 import { HttpRequestHandler, Operation } from "../http-request-handler";
 
-import { createSecureServer as createHttp2SecureServer, Http2SecureServer } from "http2";
+import { createSecureServer as createHttp2SecureServer, Http2SecureServer, Http2ServerResponse } from "http2";
 
 import { join } from "path";
 
 import { URL } from "url";
 
 import { HttpCheck } from "@distributejs/http-check";
+import { ServerResponse } from "http";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Http2SecureServer and a HTTP/2 client", () => {
@@ -523,11 +524,15 @@ describe("Class HttpRequestHandler", () => {
         describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
             let httpRequestHandler: HttpRequestHandler;
 
+            let lastBytesWritten: number;
+
             beforeEach(() => {
                 const operations: Operation[] = [
                     {
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(context, request, response): Promise<void> => {
+                            response.setHeader("content-length", 12);
+
                             response.end(JSON.stringify({
                                 "items": [],
                             }));
@@ -547,24 +552,53 @@ describe("Class HttpRequestHandler", () => {
 
                 httpRequestHandler = new HttpRequestHandler(operations);
 
-                server.on("request", (request, response) => {
+                server.on("request", (request, response: Http2ServerResponse) => {
                     httpRequestHandler.handleRequest(request, response);
+
+                    lastBytesWritten = response.stream.writableLength;
                 });
             });
 
             afterEach(() => {
                 server.removeAllListeners("request");
+
+                lastBytesWritten = undefined;
             });
 
-            test("Sends a response with no body and a Content-Length header with a value representing the length of body of a response to a corresponding GET request", async() => {
+            test("Sends a response with status code 200", async() => {
                 const response = await httpCheck.send({
                     ":method": "HEAD",
                     ":path": "/items",
                 });
 
-                expect(response.data).toEqual("");
+                expect(response.headers).toHaveProperty(":status", 200);
+            });
 
-                expect(response.headers).toHaveProperty("content-length", "12")
+            test("Sends a response with headers from corresponding operation with GET method", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                expect(response.headers).toHaveProperty("content-length", "12");
+            });
+
+            test("Sends a response with headers only", async() => {
+                await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnHead = lastBytesWritten;
+
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnGet = lastBytesWritten;
+
+                expect(bytesWrittenOnGet - bytesWrittenOnHead).toEqual(12);
             });
         });
 
@@ -2445,11 +2479,15 @@ describe("Class HttpRequestHandler", () => {
         describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
             let httpRequestHandler: HttpRequestHandler;
 
+            let lastBytesWritten: number;
+
             beforeEach(() => {
                 const operations: Operation[] = [
                     {
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: async(context, request, response): Promise<void> => {
+                            response.setHeader("content-length", 12);
+
                             response.end(JSON.stringify({
                                 "items": [],
                             }));
@@ -2469,24 +2507,53 @@ describe("Class HttpRequestHandler", () => {
 
                 httpRequestHandler = new HttpRequestHandler(operations);
 
-                server.on("request", (request, response) => {
+                server.on("request", (request, response: ServerResponse) => {
                     httpRequestHandler.handleRequest(request, response);
+
+                    lastBytesWritten = response.socket.bytesWritten;
                 });
             });
 
             afterEach(() => {
                 server.removeAllListeners("request");
+
+                lastBytesWritten = undefined;
             });
 
-            test("Sends a response with no body and a Content-Length header with a value representing the length of body of a response to a corresponding GET request", async() => {
+            test("Sends a response with status code 200", async() => {
                 const response = await httpCheck.send({
                     ":method": "HEAD",
                     ":path": "/items",
                 });
 
-                expect(response.data).toEqual("");
+                expect(response.headers).toHaveProperty(":status", 200);
+            });
 
-                expect(response.headers).toHaveProperty("content-length", "12")
+            test("Sends a response with headers from corresponding operation with GET method", async() => {
+                const response = await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                expect(response.headers).toHaveProperty("content-length", "12");
+            });
+
+            test("Sends a response with headers only", async() => {
+                await httpCheck.send({
+                    ":method": "HEAD",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnHead = lastBytesWritten;
+
+                await httpCheck.send({
+                    ":method": "GET",
+                    ":path": "/items",
+                });
+
+                const bytesWrittenOnGet = lastBytesWritten;
+
+                expect(bytesWrittenOnGet - bytesWrittenOnHead).toEqual(12);
             });
         });
 
