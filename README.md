@@ -15,6 +15,7 @@ DistributeJS http-request-handler works with:
 ## Features
 The request handler includes the following features:
 - CORS handling
+- HEAD method requests handling
 - OPTIONS method requests handling
 - Routing
 
