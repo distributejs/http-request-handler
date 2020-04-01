@@ -520,7 +520,6 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        
         describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
             let httpRequestHandler: HttpRequestHandler;
 
@@ -2443,7 +2442,6 @@ describe("Class HttpRequestHandler", () => {
             });
         });
 
-        
         describe("On request with HEAD method, where a route with the same URI and GET method exists", () => {
             let httpRequestHandler: HttpRequestHandler;
 
