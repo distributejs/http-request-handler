@@ -93,7 +93,9 @@ export class HttpRequestHandler {
             return;
         }
 
-        const routerMatch = this.router.match(request.method, requestUrl.pathname);
+        const routingMethod = request.method == "HEAD" ? "GET" : request.method;
+
+        const routerMatch = this.router.match(routingMethod, requestUrl.pathname);
 
         if (!routerMatch) {
             const allowedMethods = this.router.listMethodsForPath(requestUrl.pathname);
