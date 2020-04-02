@@ -20,11 +20,11 @@ export interface Operation {
     path: string;
 }
 
-interface Fulfil {
+export interface Fulfil {
     (context: OperationContext, request: Http2ServerRequest | IncomingMessage, response: Http2ServerResponse | ServerResponse): Promise<void>;
 }
 
-interface OperationContext {
+export interface OperationContext {
     pathArgs: Map<string, string>;
 
     url: URL;
