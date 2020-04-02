@@ -1,7 +1,7 @@
 {
     "name": "@distributejs/http-request-handler",
     "version": "0.1.0",
-    "description": "",
+    "description": "HTTP request handler for applications in Node.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/distributejs/http-request-handler"
