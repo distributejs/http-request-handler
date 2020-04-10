@@ -17,7 +17,7 @@ export interface Operation {
 
     method: keyof typeof RouteMethods;
 
-    path: string;
+    pathTemplate: string;
 }
 
 export interface Fulfil {
@@ -45,7 +45,7 @@ export class HttpRequestHandler {
         }
 
         return this.memoizedRouter = new Router(this.operations.map((operation: Operation) => {
-            return new Route(operation.method, operation.path, operation.fulfil, operation.cors);
+            return new Route(operation.method, operation.pathTemplate, operation.fulfil, operation.cors);
         }));
     }
 
