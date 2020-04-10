@@ -6,29 +6,29 @@ describe("Class Router", () => {
     const routes: Route[] = [
         new Route("GET", "/items", jest.fn()),
         new Route("POST", "/items", jest.fn()),
-        new Route("DELETE", "/items/{itemSlug}", jest.fn()),
-        new Route("GET", "/items/{itemSlug}", jest.fn()),
-        new Route("PATCH", "/items/{itemSlug}", jest.fn()),
-        new Route("PUT", "/items/{itemSlug}", jest.fn()),
-        new Route("GET", "/items/{itemSlug}/images", jest.fn()),
-        new Route("POST", "/items/{itemSlug}/images", jest.fn()),
-        new Route("DELETE", "/items/{itemSlug}/images/{imageNumber}", jest.fn()),
-        new Route("GET", "/items/{itemSlug}/images/{imageNumber}", jest.fn()),
-        new Route("PATCH", "/items/{itemSlug}/images/{imageNumber}", jest.fn()),
-        new Route("PUT", "/items/{itemSlug}/images/{imageNumber}", jest.fn()),
+        new Route("DELETE", "/items/:itemSlug", jest.fn()),
+        new Route("GET", "/items/:itemSlug", jest.fn()),
+        new Route("PATCH", "/items/:itemSlug", jest.fn()),
+        new Route("PUT", "/items/:itemSlug", jest.fn()),
+        new Route("GET", "/items/:itemSlug/images", jest.fn()),
+        new Route("POST", "/items/:itemSlug/images", jest.fn()),
+        new Route("DELETE", "/items/:itemSlug/images/:imageNumber", jest.fn()),
+        new Route("GET", "/items/:itemSlug/images/:imageNumber", jest.fn()),
+        new Route("PATCH", "/items/:itemSlug/images/:imageNumber", jest.fn()),
+        new Route("PUT", "/items/:itemSlug/images/:imageNumber", jest.fn()),
         new Route("GET", "/orders", jest.fn()),
         new Route("POST", "/orders", jest.fn()),
-        new Route("GET", "/orders/{orderRef}", jest.fn()),
-        new Route("PATCH", "/orders/{orderRef}", jest.fn()),
-        new Route("GET", "/orders/{orderRef}/items", jest.fn()),
-        new Route("POST", "/orders/{orderRef}/items", jest.fn()),
-        new Route("GET", "/orders/{orderRef}/items/{itemNumber}", jest.fn()),
-        new Route("DELETE", "/images/{imagePath+}", jest.fn()),
-        new Route("GET", "/images/{imagePath+}", jest.fn()),
-        new Route("PUT", "/images/{imagePath+}", jest.fn()),
-        new Route("DELETE", "/campaigns/{campaignPath+}/images/{imagePath+}", jest.fn()),
-        new Route("GET", "/campaigns/{campaignPath+}/images/{imagePath+}", jest.fn()),
-        new Route("PUT", "/campaigns/{campaignPath+}/images/{imagePath+}", jest.fn()),
+        new Route("GET", "/orders/:orderRef", jest.fn()),
+        new Route("PATCH", "/orders/:orderRef", jest.fn()),
+        new Route("GET", "/orders/:orderRef/items", jest.fn()),
+        new Route("POST", "/orders/:orderRef/items", jest.fn()),
+        new Route("GET", "/orders/:orderRef/items/:itemNumber", jest.fn()),
+        new Route("DELETE", "/images/:imagePath+", jest.fn()),
+        new Route("GET", "/images/:imagePath+", jest.fn()),
+        new Route("PUT", "/images/:imagePath+", jest.fn()),
+        new Route("DELETE", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
+        new Route("GET", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
+        new Route("PUT", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
     ];
 
     describe("On calling match() with method and URI matching a route with no expressions in pathTemplate", () => {
@@ -286,8 +286,8 @@ describe("Class Router", () => {
     describe("On calling match() with method and URI matching more than route", () => {
         test("Returns a RouteMatch with route value for the most recently defined of the matching routes", () => {
             const overridingRoutes: Route[] = [
-                new Route("GET", "/items/{itemSlug}", jest.fn()),
-                new Route("POST", "/items/{itemSlug}/images", jest.fn()),
+                new Route("GET", "/items/:itemSlug", jest.fn()),
+                new Route("POST", "/items/:itemSlug/images", jest.fn()),
             ];
 
             const router = new Router([].concat(routes, overridingRoutes));
