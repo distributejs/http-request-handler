@@ -1,6 +1,6 @@
 import { readFileSync } from "fs";
 
-import { HttpRequestHandler, Operation } from "../http-request-handler";
+import { ServerResponse } from "http";
 
 import { createServer as createHttpsServer, Server as HttpsServer } from "https";
 
@@ -9,8 +9,8 @@ import { join } from "path";
 import { URL } from "url";
 
 import { HttpCheck } from "@distributejs/http-check";
-import { ServerResponse } from "http";
-import { Http2ServerResponse } from "http2";
+
+import { HttpRequestHandler, Operation } from "../http-request-handler";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Server from `https` module and a HTTP/1.x client", () => {
