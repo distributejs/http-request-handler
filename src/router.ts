@@ -11,7 +11,7 @@ export enum RouterMethods {
 }
 
 export interface RouterMatch {
-    args: Map<string, string>;
+    args: Map<string, string | string[]>;
 
     route: Route;
 }
@@ -56,7 +56,7 @@ export class Router {
     }
 
     public match(method: string, path: string): RouterMatch {
-        const args: Map<string, string> = new Map();
+        const args: Map<string, string | string[]> = new Map();
 
         let matchedRoute: Route;
 
@@ -72,7 +72,33 @@ export class Router {
 
                 if (regExpResult.length > 1) {
                     for (let i = 0; i < matchedRoute.pathRegExpAndParameters.parameters.length; ++i) {
-                        args.set(matchedRoute.pathRegExpAndParameters.parameters[i], regExpResult[i + 1]);
+                        const n = (regExpResult.length - 1) * i / 2 + 1;
+
+                        const paramInTemplate = matchedRoute.pathRegExpAndParameters.parameters[i];
+
+                        const lastChar = paramInTemplate.charAt(paramInTemplate.length - 1);
+
+                        let key: string;
+
+                        let value: string | string[];
+
+                        switch (lastChar) {
+                            case "+":
+                                key = paramInTemplate.substr(0, paramInTemplate.length - 1);
+
+                                value = regExpResult[n].substr(1).split("/");
+
+                                break;
+
+                            default:
+                                key = paramInTemplate;
+
+                                value = regExpResult[n].substr(1);
+
+                                break;
+                        }
+
+                        args.set(key, value);
                     }
                 }
 

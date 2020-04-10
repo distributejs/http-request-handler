@@ -25,7 +25,7 @@ export interface Fulfil {
 }
 
 export interface OperationContext {
-    pathArgs: Map<string, string>;
+    pathArgs: Map<string, string | string[]>;
 
     url: URL;
 }

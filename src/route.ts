@@ -54,9 +54,9 @@ export class Route {
 
         const parameters = [];
 
-        const parameterPattern = "([a-zA-Z0-9-_~\\.%]+)";
+        const parameterPattern = "(/[a-zA-Z0-9-_~\\.%]+)";
 
-        const expressionRegExp = /{[^}]+}/g;
+        const expressionRegExp = /\/{[^}]+}/g;
 
         let pathPattern = "^";
 
@@ -67,9 +67,16 @@ export class Route {
         while ((expressionMatches = expressionRegExp.exec(this.pathTemplate)) !== null) {
             const matchLength = expressionMatches[0].length;
 
-            pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + parameterPattern;
+            switch(expressionMatches[0].substr(matchLength - 2, 1)) {
+                case "+":
+                    pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + "(" + parameterPattern + "+?)";
 
-            parameters.push(expressionMatches[0].substring(1, matchLength - 1));
+                    break;
+                default:
+                    pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + parameterPattern;
+            }
+
+            parameters.push(expressionMatches[0].substring(2, matchLength - 1));
 
             indexToResumeFrom = expressionMatches.index + matchLength;
         }
@@ -78,7 +85,7 @@ export class Route {
             pathPattern += this.pathTemplate.substr(indexToResumeFrom);
         }
 
-        pathPattern += "\\/??$";
+        pathPattern += "/??$";
 
         const pathRegExpAndParameters: PathRegExpAndParameters = {
             parameters,

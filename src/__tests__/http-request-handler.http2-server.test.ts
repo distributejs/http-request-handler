@@ -30,7 +30,7 @@ describe("Class HttpRequestHandler", () => {
 
             let operations: Operation[];
 
-            let capturedPathArgs: Map<string, string>;
+            let capturedPathArgs: Map<string, string | string[]>;
 
             let capturedUrl: URL;
 
@@ -126,7 +126,7 @@ describe("Class HttpRequestHandler", () => {
 
             let operations: Operation[];
 
-            let capturedPathArgs: Map<string, string>;
+            let capturedPathArgs: Map<string, string | string[]>;
 
             let capturedUrl: URL;
 
@@ -254,7 +254,7 @@ describe("Class HttpRequestHandler", () => {
 
             let operations: Operation[];
 
-            let capturedPathArgs: Map<string, string>;
+            let capturedPathArgs: Map<string, string | string[]>;
 
             let capturedUrl: URL;
 
