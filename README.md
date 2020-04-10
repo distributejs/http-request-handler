@@ -52,10 +52,17 @@ server.on("request", (request, response) => {
 An Operation object must contain properties:
 - `fulfil` - async function with custom logic for the Operation
 - `method` - HTTP method, one of `DELETE`, `GET`, `PATCH`, `POST`, `PUT`
-- `path` - path template with parameters in curly braces, e.g. `/items/{itemSlug}`
+- `pathTemplate` - path template (see Path templates section below)
 
 An Operation object may also contain properties:
 - `cors` - CORS handling settings (see CORS settings below)
+
+### Path templates
+Path templates define paths and path parameters for the Operation.
+
+Parameter types available:
+- `:parameterName` - parameter matching a single URL segment, produces a string representing matched segment
+- `:parameterName+` - parameter matching a one or more URL segments, produces an array string representing matched segments
 
 ### CORS settings
 A CORS settings object must contain properties:
