@@ -25,7 +25,7 @@ describe("Class Route", () => {
         });
     });
 
-    describe("When pathTemplate for the Route has a single expression", () => {
+    describe("When pathTemplate for the Route has a single expression with no operators", () => {
         let route: Route;
 
         beforeEach(() => {
@@ -47,7 +47,7 @@ describe("Class Route", () => {
         });
     });
 
-    describe("When pathTemplate for the Route has multiple expressions", () => {
+    describe("When pathTemplate for the Route has multiple expressions with no operators", () => {
         let route: Route;
 
         beforeEach(() => {
