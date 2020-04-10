@@ -133,7 +133,7 @@ describe("Class HttpRequestHandler", () => {
                 operations = [
                     {
                         method: "DELETE",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -145,7 +145,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "GET",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -157,7 +157,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "PATCH",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -169,7 +169,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "PUT",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -261,7 +261,7 @@ describe("Class HttpRequestHandler", () => {
                 operations = [
                     {
                         method: "DELETE",
-                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        path: "/items/:itemSlug/images/:imageNumber",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -273,7 +273,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "GET",
-                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        path: "/items/:itemSlug/images/:imageNumber",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -285,7 +285,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "PATCH",
-                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        path: "/items/:itemSlug/images/:imageNumber",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -297,7 +297,7 @@ describe("Class HttpRequestHandler", () => {
                     },
                     {
                         method: "PUT",
-                        path: "/items/{itemSlug}/images/{imageNumber}",
+                        path: "/items/:itemSlug/images/:imageNumber",
                         // eslint-disable-next-line @typescript-eslint/require-await
                         fulfil: jest.fn(async(context, request, response): Promise<void> => {
                             capturedPathArgs = context.pathArgs;
@@ -1137,7 +1137,7 @@ describe("Class HttpRequestHandler", () => {
                             response.end();
                         }),
                         method: "PATCH",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                     },
                     {
                         cors: {
@@ -1152,7 +1152,7 @@ describe("Class HttpRequestHandler", () => {
                             response.end();
                         }),
                         method: "PUT",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                     },
                 ];
 
@@ -1516,7 +1516,7 @@ describe("Class HttpRequestHandler", () => {
                             response.end();
                         }),
                         method: "PATCH",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                     },
                     {
                         cors: {
@@ -1532,7 +1532,7 @@ describe("Class HttpRequestHandler", () => {
                             response.end();
                         }),
                         method: "PUT",
-                        path: "/items/{itemSlug}",
+                        path: "/items/:itemSlug",
                     },
                 ];
 
