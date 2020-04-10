@@ -83,10 +83,11 @@ export class Router {
                         let value: string | string[];
 
                         switch (lastChar) {
+                            case "*":
                             case "+":
                                 key = paramInTemplate.substr(0, paramInTemplate.length - 1);
 
-                                value = regExpResult[n].substr(1).split("/");
+                                value = regExpResult[n].length ? regExpResult[n].substr(1).split("/") : [];
 
                                 break;
 

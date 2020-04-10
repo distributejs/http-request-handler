@@ -68,10 +68,16 @@ export class Route {
             const matchLength = expressionMatches[0].length;
 
             switch(expressionMatches[0].substr(matchLength - 1, 1)) {
+                case "*":
+                    pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + "(" + parameterPattern + "*?)";
+
+                    break;
+
                 case "+":
                     pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + "(" + parameterPattern + "+?)";
 
                     break;
+
                 default:
                     pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + parameterPattern;
             }
