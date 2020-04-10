@@ -29,6 +29,8 @@ describe("Class Router", () => {
         new Route("DELETE", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
         new Route("GET", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
         new Route("PUT", "/campaigns/:campaignPath+/images/:imagePath+", jest.fn()),
+        new Route("GET", "/news/:topic*", jest.fn()),
+        new Route("GET", "/news/:topic*/archive/:archivePath*", jest.fn()),
     ];
 
     describe("On calling match() with method and URI matching a route with no expressions in pathTemplate", () => {
@@ -221,6 +223,90 @@ describe("Class Router", () => {
             expect(router.match("GET", "/orders/AC8752/items/3/")).toHaveProperty("args", new Map([
                 ["orderRef", "AC8752"],
                 ["itemNumber", "3"],
+            ]));
+        });
+    });
+
+    describe("On calling match() with method and URI matching a route with a single expression with `*` operator in pathTemplate", () => {
+        let router: Router;
+
+        beforeAll(() => {
+            router = new Router(routes);
+        });
+
+        test("Returns a RouteMatch with correct route value", () => {
+            expect(router.match("GET", "/news")).toHaveProperty("route", routes[25]);
+
+            expect(router.match("GET", "/news/new-season")).toHaveProperty("route", routes[25]);
+
+            expect(router.match("GET", "/news/collections/new-collection")).toHaveProperty("route", routes[25]);
+        });
+
+        test("Returns a RouteMatch with correct args value", () => {
+            expect(router.match("GET", "/news")).toHaveProperty("args", new Map([
+                ["topic", []],
+            ]));
+
+            expect(router.match("GET", "/news/new-season")).toHaveProperty("args", new Map([
+                ["topic", ["new-season"]],
+            ]));
+
+            expect(router.match("GET", "/news/collections/new-collection")).toHaveProperty("args", new Map([
+                ["topic", ["collections", "new-collection"]],
+            ]));
+        });
+
+        test("Returns a RouteMatch with correct route value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/news/new-season/")).toHaveProperty("route", routes[25]);
+        });
+
+        test("Returns a RouteMatch with correct args value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/news/new-season/")).toHaveProperty("args", new Map([
+                ["topic", ["new-season"]],
+            ]));
+        });
+    });
+
+    describe("On calling match() with method and URI matching a route with a multiple expressions with `*` operator in pathTemplate", () => {
+        let router: Router;
+
+        beforeAll(() => {
+            router = new Router(routes);
+        });
+
+        test("Returns a RouteMatch with correct route value", () => {
+            expect(router.match("GET", "/news/archive")).toHaveProperty("route", routes[26]);
+
+            expect(router.match("GET", "/news/new-season/archive/2019/03")).toHaveProperty("route", routes[26]);
+
+            expect(router.match("GET", "/news/collections/new-collection/archive/2019/06")).toHaveProperty("route", routes[26]);
+        });
+
+        test("Returns a RouteMatch with correct args value", () => {
+            expect(router.match("GET", "/news/archive")).toHaveProperty("args", new Map([
+                ["topic", []],
+                ["archivePath", []],
+            ]));
+
+            expect(router.match("GET", "/news/new-season/archive/2019/03")).toHaveProperty("args", new Map([
+                ["topic", ["new-season"]],
+                ["archivePath", ["2019", "03"]],
+            ]));
+
+            expect(router.match("GET", "/news/collections/new-collection/archive/2019/06")).toHaveProperty("args", new Map([
+                ["topic", ["collections", "new-collection"]],
+                ["archivePath", ["2019", "06"]],
+            ]));
+        });
+
+        test("Returns a RouteMatch with correct route value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/news/new-season/archive/2019/03/")).toHaveProperty("route", routes[26]);
+        });
+
+        test("Returns a RouteMatch with correct args value, regardless of trailing slashes in URI", () => {
+            expect(router.match("GET", "/news/new-season/archive/2019/03")).toHaveProperty("args", new Map([
+                ["topic", ["new-season"]],
+                ["archivePath", ["2019", "03"]],
             ]));
         });
     });

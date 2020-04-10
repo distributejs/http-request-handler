@@ -61,7 +61,8 @@ An Operation object may also contain properties:
 Path templates define paths and path parameters for the Operation.
 
 Parameter types available:
-- `:parameterName` - parameter matching a single URL segment, produces a string representing matched segment
+- `:parameterName` - parameter matching one URL segment, produces a string representing matched segment
+- `:parameterName*` - parameter matching a zero or more URL segments, produces an array string representing matched segments
 - `:parameterName+` - parameter matching a one or more URL segments, produces an array string representing matched segments
 
 ### CORS settings

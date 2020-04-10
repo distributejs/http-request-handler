@@ -69,6 +69,50 @@ describe("Class Route", () => {
         });
     });
 
+    describe("When pathTemplate for the Route has a single expression with `*` operator", () => {
+        let route: Route;
+
+        beforeEach(() => {
+            route = new Route("GET", "/news/:topic*", jest.fn());
+        });
+
+        test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/news(" + parameterPattern + "*?)/??$"));
+        });
+
+        test("Value of pathRegExpAndParameters.parameters is correct", () => {
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["topic*"]);
+        });
+
+        test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
+            const fistReadValue = route.pathRegExpAndParameters;
+
+            expect(route.pathRegExpAndParameters).toEqual(fistReadValue);
+        });
+    });
+
+    describe("When pathTemplate for the Route has multiple expressions with `*` operator", () => {
+        let route: Route;
+
+        beforeEach(() => {
+            route = new Route("GET", "/news/:topic*/archive/:archivePath*", jest.fn());
+        });
+
+        test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/news(" + parameterPattern + "*?)/archive(" + parameterPattern + "*?)/??$"));
+        });
+
+        test("Value of pathRegExpAndParameters.parameters is correct", () => {
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["topic*", "archivePath*"]);
+        });
+
+        test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
+            const fistReadValue = route.pathRegExpAndParameters;
+
+            expect(route.pathRegExpAndParameters).toEqual(fistReadValue);
+        });
+    });
+
     describe("When pathTemplate for the Route has a single expression with `+` operator", () => {
         let route: Route;
 
