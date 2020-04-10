@@ -1,11 +1,10 @@
-import { HttpRequestHandler, Operation } from "../http-request-handler";
-
 import { createServer as createHttpServer, Server as HttpServer, ServerResponse } from "http";
 
 import { URL } from "url";
 
 import { HttpCheck } from "@distributejs/http-check";
-import { Http2ServerResponse } from "http2";
+
+import { HttpRequestHandler, Operation } from "../http-request-handler";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Server from `http` module and a HTTP/1.x client", () => {

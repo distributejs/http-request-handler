@@ -1,7 +1,5 @@
 import { readFileSync } from "fs";
 
-import { HttpRequestHandler, Operation } from "../http-request-handler";
-
 import { createSecureServer as createHttp2SecureServer, Http2SecureServer, Http2ServerResponse } from "http2";
 
 import { join } from "path";
@@ -9,7 +7,8 @@ import { join } from "path";
 import { URL } from "url";
 
 import { HttpCheck } from "@distributejs/http-check";
-import { ServerResponse } from "http";
+
+import { HttpRequestHandler, Operation } from "../http-request-handler";
 
 describe("Class HttpRequestHandler", () => {
     describe("Provided a server that is an instance of Http2SecureServer and a HTTP/2 client", () => {
@@ -2507,7 +2506,7 @@ describe("Class HttpRequestHandler", () => {
 
                 httpRequestHandler = new HttpRequestHandler(operations);
 
-                server.on("request", (request, response: ServerResponse) => {
+                server.on("request", (request, response: Http2ServerResponse) => {
                     httpRequestHandler.handleRequest(request, response);
 
                     lastBytesWritten = response.socket.bytesWritten;
