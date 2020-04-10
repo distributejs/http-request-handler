@@ -67,18 +67,16 @@ export class Route {
         while ((expressionMatches = expressionRegExp.exec(this.pathTemplate)) !== null) {
             const matchLength = expressionMatches[0].length;
 
-            let operator = "";
-
             switch(expressionMatches[0].substr(matchLength - 2, 1)) {
                 case "+":
-                    operator = "+";
+                    pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + "(" + parameterPattern + "+?)";
 
                     break;
+                default:
+                    pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + parameterPattern;
             }
 
-            pathPattern += this.pathTemplate.substring(indexToResumeFrom, expressionMatches.index) + parameterPattern + operator;
-
-            parameters.push(expressionMatches[0].replace(/^\/{|\+??}$/g, ""));
+            parameters.push(expressionMatches[0].substring(2, matchLength - 1));
 
             indexToResumeFrom = expressionMatches.index + matchLength;
         }

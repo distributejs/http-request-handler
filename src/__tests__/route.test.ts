@@ -77,11 +77,11 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/images" + parameterPattern + "+/??$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/images(" + parameterPattern + "+?)/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
-            expect(route.pathRegExpAndParameters.parameters).toEqual(["imagePath"]);
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["imagePath+"]);
         });
 
         test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
@@ -95,15 +95,15 @@ describe("Class Route", () => {
         let route: Route;
 
         beforeEach(() => {
-            route = new Route("GET", "/items/{itemPath+}/images/{imagePath+}", jest.fn());
+            route = new Route("GET", "/campaigns/{campaignPath+}/images/{imagePath+}", jest.fn());
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items" + parameterPattern + "+/images" + parameterPattern + "+/??$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/campaigns(" + parameterPattern + "+?)/images(" + parameterPattern + "+?)/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
-            expect(route.pathRegExpAndParameters.parameters).toEqual(["itemPath", "imagePath"]);
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["campaignPath+", "imagePath+"]);
         });
 
         test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
