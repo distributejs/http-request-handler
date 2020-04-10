@@ -1,6 +1,6 @@
 import { Route } from "../route";
 
-const parameterPattern = "([a-zA-Z0-9-_~\\.%]+)";
+const parameterPattern = "(/[a-zA-Z0-9-_~\\.%]+)";
 
 describe("Class Route", () => {
     describe("When pathTemplate for the Route has no expressions", () => {
@@ -33,7 +33,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/??$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items" + parameterPattern + "/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
@@ -55,11 +55,55 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "/??$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items" + parameterPattern + "/images"  + parameterPattern + "/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {
             expect(route.pathRegExpAndParameters.parameters).toEqual(["itemSlug", "imageNumber"]);
+        });
+
+        test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
+            const fistReadValue = route.pathRegExpAndParameters;
+
+            expect(route.pathRegExpAndParameters).toEqual(fistReadValue);
+        });
+    });
+
+    describe("When pathTemplate for the Route has a single expression with `+` operator", () => {
+        let route: Route;
+
+        beforeEach(() => {
+            route = new Route("GET", "/images/{imagePath+}", jest.fn());
+        });
+
+        test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/images" + parameterPattern + "+/??$"));
+        });
+
+        test("Value of pathRegExpAndParameters.parameters is correct", () => {
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["imagePath"]);
+        });
+
+        test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
+            const fistReadValue = route.pathRegExpAndParameters;
+
+            expect(route.pathRegExpAndParameters).toEqual(fistReadValue);
+        });
+    });
+
+    describe("When pathTemplate for the Route has multiple expressions with `+` operator", () => {
+        let route: Route;
+
+        beforeEach(() => {
+            route = new Route("GET", "/items/{itemPath+}/images/{imagePath+}", jest.fn());
+        });
+
+        test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items" + parameterPattern + "+/images" + parameterPattern + "+/??$"));
+        });
+
+        test("Value of pathRegExpAndParameters.parameters is correct", () => {
+            expect(route.pathRegExpAndParameters.parameters).toEqual(["itemPath", "imagePath"]);
         });
 
         test("Subsequent read of pathRegExpAndParameters returns the same value", () => {
@@ -77,7 +121,7 @@ describe("Class Route", () => {
         });
 
         test("Value of pathRegExpAndParameters.pathRegExp is correct", () => {
-            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items/" + parameterPattern + "/images/"  + parameterPattern + "/metadata\\/??$"));
+            expect(route.pathRegExpAndParameters.pathRegExp).toEqual(new RegExp("^/items" + parameterPattern + "/images"  + parameterPattern + "/metadata/??$"));
         });
 
         test("Value of pathRegExpAndParameters.parameters is correct", () => {

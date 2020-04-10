@@ -72,7 +72,7 @@ export class Router {
 
                 if (regExpResult.length > 1) {
                     for (let i = 0; i < matchedRoute.pathRegExpAndParameters.parameters.length; ++i) {
-                        args.set(matchedRoute.pathRegExpAndParameters.parameters[i], regExpResult[i + 1]);
+                        args.set(matchedRoute.pathRegExpAndParameters.parameters[i], regExpResult[i + 1].substr(1));
                     }
                 }
 
